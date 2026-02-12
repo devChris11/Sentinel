@@ -1,4 +1,5 @@
 import type { Preview } from '@storybook/nextjs-vite';
+import React from 'react';
 import '../app/globals.css';
 
 const preview: Preview = {
@@ -59,6 +60,18 @@ const preview: Preview = {
       test: 'todo',
     },
   },
+  
+  decorators: [
+    (Story) => 
+      React.createElement(
+        'div',
+        { 
+          className: 'font-sans antialiased',
+          style: { fontFamily: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }
+        },
+        React.createElement(Story)
+      ),
+  ],
 };
 
 export default preview;

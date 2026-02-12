@@ -1,0 +1,17 @@
+feat: add layout components, design system stories, and Storybook Inter font
+
+Layout & app
+- Add Sidebar component (dark #0F172A, 240px/64px, Lucide nav, active/hover, user profile, mobile hamburger)
+- Add RootLayout wrapper with Sidebar, light content (#F8FAFC), scrollable main area
+- Use RootLayout and Inter font in app/layout.tsx; set metadata (Sentinel title/description)
+- Add /dashboard route with placeholder page; root redirects to /dashboard
+- Make Sentinel logo non-clickable; Dashboard active for / and /dashboard
+
+Design system (Storybook)
+- Add typography.stories: H1–H6, body (lg/base/sm/xs), UI text, weights 300–800, light/dark
+- Add spacing.stories: scale (0–32), patterns (tight/compact/default/comfortable/spacious), cards, stack, grid
+- Fix Storybook fonts: preview-head.html loads Inter from Google Fonts; preview.ts decorator applies font-sans + inline fontFamily
+
+Docs & exports
+- Add components/layout README, USAGE_EXAMPLES.md, index.ts barrel export
+- Add LAYOUT_SETUP.md; sidebar and root-layout Storybook stories
