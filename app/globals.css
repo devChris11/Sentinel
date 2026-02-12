@@ -1,26 +1,166 @@
-@import "tailwindcss";
+/* Import Inter font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Base Shadcn mappings */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  
+  /* Sentinel Custom: Semantic Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+  
+  /* Sentinel Custom: Dark Sidebar Palette */
+  --color-sidebar-bg: #0f172a;
+  --color-sidebar-surface: #1e293b;
+  --color-sidebar-border: #334155;
+  --color-sidebar-text: #cbd5e1;
+  --color-sidebar-text-strong: #f1f5f9;
+  --color-sidebar-text-muted: #94a3b8;
+  
+  /* Sentinel Custom: Light Content Palette */
+  --color-content-bg: #f8fafc;
+  --color-content-bg-alt: #f1f5f9;
+  --color-content-surface: #fefefe;
+  --color-content-border: #e2e8f0;
+  --color-content-text: #475569;
+  --color-content-text-strong: #0f172a;
+  --color-content-text-muted: #64748b;
+  
+  /* Fonts */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+  
+  /* Spacing */
+  --spacing-sidebar-expanded: 240px;
+  --spacing-sidebar-collapsed: 64px;
+  
+  /* Border Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ===== SENTINEL DESIGN SYSTEM TOKENS ===== */
+:root {
+  /* Border radius */
+  --radius: 0.5rem; /* 8px */
+  
+  /* Sentinel Primary - Indigo 500 */
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  
+  /* Light Content Area (Sentinel's main interface) */
+  --background: #f8fafc; /* Slate 50 */
+  --foreground: #0f172a; /* Slate 900 */
+  
+  /* Cards and Surfaces */
+  --card: #fefefe; /* Near-white, not pure white */
+  --card-foreground: #0f172a;
+  
+  /* Popovers and Dropdowns */
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  
+  /* Secondary (used for less prominent elements) */
+  --secondary: #f1f5f9; /* Slate 100 */
+  --secondary-foreground: #0f172a;
+  
+  /* Muted (backgrounds and secondary text) */
+  --muted: #f1f5f9; /* Slate 100 */
+  --muted-foreground: #64748b; /* Slate 500 */
+  
+  /* Accent (hover states, highlights) */
+  --accent: #f1f5f9; /* Slate 100 */
+  --accent-foreground: #0f172a;
+  
+  /* Destructive (danger, delete actions) */
+  --destructive: #ef4444; /* Red 500 */
+  --destructive-foreground: #ffffff;
+  
+  /* Borders and Inputs */
+  --border: #e2e8f0; /* Slate 200 */
+  --input: #e2e8f0;
+  --ring: #6366f1; /* Indigo 500 for focus rings */
+  
+  /* Chart colors (for Tremor/Recharts) */
+  --chart-1: #6366f1; /* Indigo 500 */
+  --chart-2: #10b981; /* Green 500 */
+  --chart-3: #f59e0b; /* Amber 500 */
+  --chart-4: #ef4444; /* Red 500 */
+  --chart-5: #3b82f6; /* Blue 500 */
+  
+  /* Sidebar (Dark) - NOT used in :root, but defined for reference */
+  /* These are accessed via custom classes like bg-sidebar-bg */
+}
+
+/* ===== DARK MODE (Not used in Sentinel, but kept for compatibility) ===== */
+.dark {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --card: #1e293b;
+  --card-foreground: #f1f5f9;
+  --popover: #1e293b;
+  --popover-foreground: #f1f5f9;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #334155;
+  --secondary-foreground: #f1f5f9;
+  --muted: #334155;
+  --muted-foreground: #94a3b8;
+  --accent: #334155;
+  --accent-foreground: #f1f5f9;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #334155;
+  --input: #334155;
+  --ring: #6366f1;
+  --chart-1: #6366f1;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #3b82f6;
+}
+
+/* ===== BASE STYLES ===== */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  
+  html {
+    @apply antialiased;
+    font-family: var(--font-sans);
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+  }
 }
