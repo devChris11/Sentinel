@@ -1,11 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import {
   AlertOctagon,
   AlertTriangle,
   AlertCircle,
   Info,
   MoreHorizontal,
+  CheckCircle2,
 } from "lucide-react"
 import {
   Table,
@@ -22,7 +24,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 import type { SecurityAlert } from "@/lib/dashboard-data"
+import { AlertDetailModal } from "./alert-detail-modal"
 
 // Severity config: dot color, icon component, icon color
 const severityConfig: Record<
@@ -71,7 +75,65 @@ function getInitials(name: string): string {
     .slice(0, 2)
 }
 
-export function AlertsTable({ alerts }: { alerts: SecurityAlert[] }) {
+interface AlertsTableProps {
+  alerts: SecurityAlert[]
+  setAlerts: React.Dispatch<React.SetStateAction<SecurityAlert[]>>
+}
+
+export function AlertsTable({ alerts, setAlerts }: AlertsTableProps) {
+  const [selectedAlert, setSelectedAlert] = useState<SecurityAlert | null>(null)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
+
+  const handleStatusChange = (
+    alertId: string,
+    newStatus: SecurityAlert["status"],
+    message: string
+  ) => {
+    setAlerts((prev) =>
+      prev.map((alert) =>
+        alert.id === alertId ? { ...alert, status: newStatus } : alert
+      )
+    )
+    toast.success(message)
+    setIsDetailOpen(false)
+  }
+
+  const handleViewDetails = (alert: SecurityAlert) => {
+    setSelectedAlert(alert)
+    setIsDetailOpen(true)
+  }
+
+  const handleModalStatusChange = (alertId: string, newStatus: SecurityAlert["status"]) => {
+    const messages = {
+      "in-progress": "Alert assigned to you",
+      resolved: "Alert marked as resolved",
+      dismissed: "Alert dismissed",
+      new: "Alert status updated",
+    }
+    handleStatusChange(alertId, newStatus, messages[newStatus])
+  }
+
+  // Empty state
+  if (alerts.length === 0) {
+    return (
+      <section>
+        <h2 className="mb-4 text-xl font-semibold text-[#0F172A]">
+          Recent Security Alerts
+        </h2>
+        <div className="overflow-hidden rounded-lg border border-[#E2E8F0] bg-[#FEFEFE] shadow-sm">
+          <div className="flex flex-col items-center justify-center p-12 text-center">
+            <CheckCircle2 className="mb-4 h-16 w-16 text-[#10B981]" />
+            <h3 className="mb-2 text-2xl font-semibold text-[#0F172A]">All Clear!</h3>
+            <p className="mb-1 text-[#64748B]">No active alerts at the moment</p>
+            <p className="text-sm text-[#64748B]">
+              We&apos;ll notify you when something needs attention
+            </p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section>
       <h2 className="mb-4 text-xl font-semibold text-[#0F172A]">
@@ -169,17 +231,36 @@ export function AlertsTable({ alerts }: { alerts: SecurityAlert[] }) {
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger
-                        className="rounded-md p-1.5 hover:bg-[#F1F5F9] focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="rounded-md p-1.5 hover:bg-[#F1F5F9] focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
                         aria-label={`Actions for ${alert.title}`}
                       >
                         <MoreHorizontal className="h-4 w-4 text-[#64748B]" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem>Assign to Me</DropdownMenuItem>
-                        <DropdownMenuItem>Mark Resolved</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleViewDetails(alert)}>
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusChange(alert.id, "in-progress", "Alert assigned to you")
+                          }
+                        >
+                          Assign to Me
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusChange(alert.id, "resolved", "Alert marked as resolved")
+                          }
+                        >
+                          Mark Resolved
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-[#EF4444] focus:text-[#EF4444]">
+                        <DropdownMenuItem
+                          className="text-[#EF4444] focus:text-[#EF4444]"
+                          onClick={() =>
+                            handleStatusChange(alert.id, "dismissed", "Alert dismissed")
+                          }
+                        >
                           Dismiss
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -191,6 +272,14 @@ export function AlertsTable({ alerts }: { alerts: SecurityAlert[] }) {
           </TableBody>
         </Table>
       </div>
+
+      {/* Alert Detail Modal */}
+      <AlertDetailModal
+        alert={selectedAlert}
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        onStatusChange={handleModalStatusChange}
+      />
     </section>
   )
 }

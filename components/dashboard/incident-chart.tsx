@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
   BarChart,
   Bar,
@@ -10,14 +11,16 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts"
-import { MoreVertical } from "lucide-react"
+import { MoreVertical, Loader2 } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 import type { IncidentCategory } from "@/lib/dashboard-data"
+import { ChartDetailModal } from "./chart-detail-modal"
 
 function CustomTooltip({
   active,
@@ -39,6 +42,33 @@ function CustomTooltip({
 }
 
 export function IncidentChart({ data }: { data: IncidentCategory[] }) {
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
+
+  const handleExportCSV = () => {
+    const csvContent = [
+      ['Category', 'Count'],
+      ...data.map(d => [d.fullName, d.count])
+    ].map(row => row.join(',')).join('\n')
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'incident-data-export.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+    
+    toast.success('Incident data exported successfully')
+  }
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    setIsRefreshing(false)
+    toast.success('Chart refreshed')
+  }
+
   return (
     <div className="rounded-lg border border-[#E2E8F0] bg-[#FEFEFE] shadow-sm">
       {/* Header */}
@@ -51,15 +81,20 @@ export function IncidentChart({ data }: { data: IncidentCategory[] }) {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger
-            className="rounded-md p-1.5 hover:bg-[#F1F5F9] focus:outline-none focus:ring-2 focus:ring-primary"
+            className="rounded-md p-1.5 hover:bg-[#F1F5F9] focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             aria-label="Chart actions"
+            disabled={isRefreshing}
           >
-            <MoreVertical className="h-4 w-4 text-[#64748B]" />
+            {isRefreshing ? (
+              <Loader2 className="h-4 w-4 text-[#64748B] animate-spin" />
+            ) : (
+              <MoreVertical className="h-4 w-4 text-[#64748B]" />
+            )}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Export CSV</DropdownMenuItem>
-            <DropdownMenuItem>View Details</DropdownMenuItem>
-            <DropdownMenuItem>Refresh</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportCSV}>Export CSV</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsDetailOpen(true)}>View Details</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleRefresh}>Refresh</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -99,6 +134,15 @@ export function IncidentChart({ data }: { data: IncidentCategory[] }) {
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Detail Modal */}
+      <ChartDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        title="Incident Breakdown - Detailed View"
+        chartType="bar"
+        data={data}
+      />
     </div>
   )
 }

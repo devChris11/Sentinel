@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
   LineChart,
   Line,
@@ -10,14 +11,16 @@ import {
   ReferenceLine,
   ResponsiveContainer,
 } from "recharts"
-import { MoreVertical } from "lucide-react"
+import { MoreVertical, Loader2 } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 import type { ChartDataPoint } from "@/lib/dashboard-data"
+import { ChartDetailModal } from "./chart-detail-modal"
 
 function CustomTooltip({
   active,
@@ -40,6 +43,33 @@ function CustomTooltip({
 }
 
 export function RiskTrendChart({ data }: { data: ChartDataPoint[] }) {
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
+
+  const handleExportCSV = () => {
+    const csvContent = [
+      ['Date', 'Risk Score'],
+      ...data.map(d => [d.date, d.value])
+    ].map(row => row.join(',')).join('\n')
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'risk-trend-export.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+    
+    toast.success('Risk trend exported successfully')
+  }
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    setIsRefreshing(false)
+    toast.success('Chart refreshed')
+  }
+
   return (
     <div className="rounded-lg border border-[#E2E8F0] bg-[#FEFEFE] shadow-sm">
       {/* Header */}
@@ -52,15 +82,20 @@ export function RiskTrendChart({ data }: { data: ChartDataPoint[] }) {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger
-            className="rounded-md p-1.5 hover:bg-[#F1F5F9] focus:outline-none focus:ring-2 focus:ring-primary"
+            className="rounded-md p-1.5 hover:bg-[#F1F5F9] focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             aria-label="Chart actions"
+            disabled={isRefreshing}
           >
-            <MoreVertical className="h-4 w-4 text-[#64748B]" />
+            {isRefreshing ? (
+              <Loader2 className="h-4 w-4 text-[#64748B] animate-spin" />
+            ) : (
+              <MoreVertical className="h-4 w-4 text-[#64748B]" />
+            )}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Export CSV</DropdownMenuItem>
-            <DropdownMenuItem>View Details</DropdownMenuItem>
-            <DropdownMenuItem>Refresh</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportCSV}>Export CSV</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsDetailOpen(true)}>View Details</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleRefresh}>Refresh</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -111,6 +146,15 @@ export function RiskTrendChart({ data }: { data: ChartDataPoint[] }) {
           </LineChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Detail Modal */}
+      <ChartDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        title="Risk Score Trend - Detailed View"
+        chartType="line"
+        data={data}
+      />
     </div>
   )
 }
