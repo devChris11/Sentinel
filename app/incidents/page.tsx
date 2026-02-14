@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback, useEffect } from "react"
+import { useState, useMemo, useCallback, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { INCIDENTS, type Incident, type Severity, type Status } from "@/lib/incidents-data"
@@ -19,7 +19,7 @@ const PAGE_SIZE = 20
 const SEVERITY_ORDER: Record<Severity, number> = { critical: 4, high: 3, medium: 2, low: 1 }
 const STATUS_ORDER: Record<Status, number> = { new: 5, acknowledged: 4, "in-progress": 3, resolved: 2, dismissed: 1 }
 
-export default function IncidentsPage() {
+function IncidentsPageContent() {
   const searchParams = useSearchParams()
   
   // Simulated loading state
@@ -49,7 +49,9 @@ export default function IncidentsPage() {
 
   // Side panel
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null)
-  
+  const [detailEscalateModalOpen, setDetailEscalateModalOpen] = useState(false)
+  const [detailDismissModalOpen, setDetailDismissModalOpen] = useState(false)
+
   // Auto-open panel if incident ID is in URL params (from Dashboard navigation)
   useEffect(() => {
     const openId = searchParams.get('open')
@@ -195,10 +197,14 @@ export default function IncidentsPage() {
 
   const handleRowClick = useCallback((incident: Incident) => {
     setSelectedIncident(incident)
+    setDetailEscalateModalOpen(false)
+    setDetailDismissModalOpen(false)
   }, [])
 
   const handleClosePanel = useCallback(() => {
     setSelectedIncident(null)
+    setDetailEscalateModalOpen(false)
+    setDetailDismissModalOpen(false)
   }, [])
 
   const handleBulkAcknowledge = useCallback(() => {
@@ -289,7 +295,14 @@ export default function IncidentsPage() {
         )}
       </div>
 
-      <IncidentDetailPanel incident={selectedIncident} onClose={handleClosePanel} />
+      <IncidentDetailPanel
+        incident={selectedIncident}
+        onClose={handleClosePanel}
+        escalateModalOpen={detailEscalateModalOpen}
+        onEscalateModalOpenChange={setDetailEscalateModalOpen}
+        dismissModalOpen={detailDismissModalOpen}
+        onDismissModalOpenChange={setDetailDismissModalOpen}
+      />
 
       <DismissModal
         open={dismissModalOpen}
@@ -298,5 +311,13 @@ export default function IncidentsPage() {
         onConfirm={handleConfirmDismiss}
       />
     </main>
+  )
+}
+
+export default function IncidentsPage() {
+  return (
+    <Suspense fallback={<IncidentsLoading />}>
+      <IncidentsPageContent />
+    </Suspense>
   )
 }

@@ -47,6 +47,9 @@ const meta = {
       </div>
     ),
   ],
+  args: {
+    setAlerts: (() => {}) as import('react').Dispatch<import('react').SetStateAction<SecurityAlert[]>>,
+  },
 } satisfies Meta<typeof AlertsTable>
 
 export default meta

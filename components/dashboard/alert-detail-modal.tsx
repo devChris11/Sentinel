@@ -63,6 +63,7 @@ const statusConfig: Record<
   { bg: string; text: string; label: string }
 > = {
   new: { bg: "bg-primary/10", text: "text-primary", label: "New" },
+  acknowledged: { bg: "bg-warning/10", text: "text-warning", label: "Acknowledged" },
   "in-progress": {
     bg: "bg-[#F59E0B]/10",
     text: "text-[#F59E0B]",

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import * as React from 'react'
 import { IncidentsTable } from '@/components/incidents/incidents-table'
-import { INCIDENTS } from '@/lib/incidents-data'
+import { INCIDENTS, type Incident } from '@/lib/incidents-data'
 
 const meta = {
   title: 'Incidents/Table',
@@ -20,6 +20,21 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+const placeholderArgs = {
+  incidents: INCIDENTS.slice(0, 10),
+  selectedIds: new Set<string>(),
+  onToggleSelect: (_id: string) => {},
+  onToggleSelectAll: () => {},
+  onRowClick: (_incident: Incident) => {},
+  sortColumn: 'time',
+  sortDirection: 'desc' as const,
+  onSort: (_column: string) => {},
+  totalCount: 10,
+  currentPage: 1,
+  totalPages: 1,
+  onPageChange: (_page: number) => {},
+}
+
 /**
  * ## Incidents Table
  * 
@@ -27,6 +42,7 @@ type Story = StoryObj<typeof meta>
  * Demonstrates sorting, selection, and row click functionality.
  */
 export const Default: Story = {
+  args: placeholderArgs,
   render: () => {
     const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
     const [sortColumn, setSortColumn] = React.useState('time')

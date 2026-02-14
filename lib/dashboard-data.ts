@@ -33,7 +33,7 @@ export interface SecurityAlert {
     email: string
   }
   timestamp: string
-  status: "new" | "in-progress" | "resolved" | "dismissed"
+  status: "new" | "acknowledged" | "in-progress" | "resolved" | "dismissed"
 }
 
 export interface ChartDataPoint {

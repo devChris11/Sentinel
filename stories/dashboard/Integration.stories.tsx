@@ -87,7 +87,8 @@ export const NavigationComponents: Story = {
         </h3>
         <p className="text-sm text-content-text-muted mb-4">
           Previously: Opened modal dialog with limited incident preview<br />
-          Now: Navigates directly to `/incidents?open={incidentId}`
+          {"Now: Navigates directly to "}
+          <code className="text-xs font-mono">/incidents?open={'{incidentId}'}</code>
         </p>
         <div className="rounded border border-content-border bg-content-bg p-3">
           <p className="text-xs font-mono text-primary">
