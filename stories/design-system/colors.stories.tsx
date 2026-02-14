@@ -62,14 +62,98 @@ const ColorsShowcase = () => (
           name="Orange"
           hex="#F97316"
           className="bg-orange"
-          usage="High risk level, urgent warnings"
+          usage="High risk level, In Progress status"
         />
         <ColorSwatch
           name="Info"
           hex="#3B82F6"
           className="bg-info"
-          usage="Informational messages"
+          usage="Informational messages, New status"
         />
+      </div>
+    </section>
+
+    {/* Status Colors */}
+    <section>
+      <h2 className="text-2xl font-semibold mb-6 text-content-text-strong">Status Colors</h2>
+      <p className="text-sm text-content-text-muted mb-6">
+        Badge colors used in Incidents page for status display. Uses 10% opacity backgrounds with 20% opacity borders for subtle, professional badges. Text uses full opacity for readability.
+      </p>
+      <div className="grid grid-cols-5 gap-6">
+        <div className="space-y-3">
+          <ColorSwatch
+            name="New"
+            hex="#3B82F6"
+            className="bg-info"
+            usage="Unacknowledged incidents"
+          />
+          <div className="rounded-lg border border-content-border bg-content-surface p-3">
+            <p className="text-xs text-content-text-muted mb-2">Badge Example:</p>
+            <span className="inline-flex rounded-full border border-info/20 bg-info/10 px-2.5 py-0.5 text-xs font-medium text-info">
+              New
+            </span>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          <ColorSwatch
+            name="Acknowledged"
+            hex="#F59E0B"
+            className="bg-warning"
+            usage="Seen and triaged"
+          />
+          <div className="rounded-lg border border-content-border bg-content-surface p-3">
+            <p className="text-xs text-content-text-muted mb-2">Badge Example:</p>
+            <span className="inline-flex rounded-full border border-warning/20 bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning">
+              Acknowledged
+            </span>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          <ColorSwatch
+            name="In Progress"
+            hex="#F97316"
+            className="bg-orange"
+            usage="Actively investigated"
+          />
+          <div className="rounded-lg border border-content-border bg-content-surface p-3">
+            <p className="text-xs text-content-text-muted mb-2">Badge Example:</p>
+            <span className="inline-flex rounded-full border border-orange/20 bg-orange/10 px-2.5 py-0.5 text-xs font-medium text-orange">
+              In Progress
+            </span>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          <ColorSwatch
+            name="Resolved"
+            hex="#10B981"
+            className="bg-success"
+            usage="Issue fixed and closed"
+          />
+          <div className="rounded-lg border border-content-border bg-content-surface p-3">
+            <p className="text-xs text-content-text-muted mb-2">Badge Example:</p>
+            <span className="inline-flex rounded-full border border-success/20 bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success">
+              Resolved
+            </span>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          <ColorSwatch
+            name="Dismissed"
+            hex="#6B7280"
+            className="bg-content-text-muted"
+            usage="False positive or irrelevant"
+          />
+          <div className="rounded-lg border border-content-border bg-content-surface p-3">
+            <p className="text-xs text-content-text-muted mb-2">Badge Example:</p>
+            <span className="inline-flex rounded-full border border-content-text-muted/20 bg-content-text-muted/10 px-2.5 py-0.5 text-xs font-medium text-content-text-muted">
+              Dismissed
+            </span>
+          </div>
+        </div>
       </div>
     </section>
 

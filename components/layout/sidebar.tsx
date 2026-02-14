@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { 
   LayoutDashboard, 
   Shield, 
+  ShieldAlert,
   AlertCircle, 
   FileText, 
   Settings,
@@ -17,7 +18,7 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
+import { INCIDENTS } from "@/lib/incidents-data"
 
 interface NavItem {
   label: string
@@ -32,14 +33,14 @@ const navigationItems: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
+    label: "Incidents",
+    href: "/incidents",
+    icon: ShieldAlert,
+  },
+  {
     label: "Risk Scoring",
     href: "/risk-scoring",
     icon: Shield,
-  },
-  {
-    label: "Alerts",
-    href: "/alerts",
-    icon: AlertCircle,
   },
   {
     label: "Reports",
@@ -62,6 +63,12 @@ export function Sidebar({ className, defaultCollapsed = false }: SidebarProps) {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed)
   const [isMobileOpen, setIsMobileOpen] = React.useState(false)
+  const [newIncidentsCount, setNewIncidentsCount] = React.useState(0)
+
+  // Calculate new incidents count for badge (client-side only to avoid hydration mismatch)
+  React.useEffect(() => {
+    setNewIncidentsCount(INCIDENTS.filter(inc => inc.status === 'new').length)
+  }, [])
 
   // Close mobile menu when route changes
   React.useEffect(() => {
@@ -180,7 +187,12 @@ export function Sidebar({ className, defaultCollapsed = false }: SidebarProps) {
                     title={isCollapsed ? item.label : undefined}
                   >
                     <Icon className={cn("h-5 w-5 shrink-0")} />
-                    {!isCollapsed && <span>{item.label}</span>}
+                    {!isCollapsed && <span className="flex-1">{item.label}</span>}
+                    {!isCollapsed && item.href === "/incidents" && newIncidentsCount > 0 && (
+                      <span className="rounded-full bg-[#F8FAFC] px-2 py-0.5 text-xs font-medium text-[#0F172A]">
+                        {newIncidentsCount}
+                      </span>
+                    )}
                   </Link>
                 </li>
               )

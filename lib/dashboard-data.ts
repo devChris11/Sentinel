@@ -1,6 +1,8 @@
 // Dashboard Data Layer
 // Provides TypeScript interfaces and mock data for dashboard components
 
+import { getDashboardAlerts } from "./incidents-data"
+
 export type DateRange = "24h" | "7d" | "30d" | "90d"
 
 export interface DashboardMetric {
@@ -197,105 +199,8 @@ export function getDashboardData(dateRange: DateRange): DashboardData {
     }
   ]
   
-  // Security alerts
-  const alerts: SecurityAlert[] = [
-    {
-      id: "alert-1",
-      severity: "critical",
-      title: "Multiple Failed Login Attempts",
-      description: "15 failed login attempts from IP 192.168.1.45",
-      user: {
-        name: "Sarah Chen",
-        email: "s.chen@company.com"
-      },
-      timestamp: "2 minutes ago",
-      status: "new"
-    },
-    {
-      id: "alert-2",
-      severity: "high",
-      title: "Suspicious File Download",
-      description: "Large dataset downloaded outside business hours",
-      user: {
-        name: "Michael Rodriguez",
-        email: "m.rodriguez@company.com"
-      },
-      timestamp: "12 minutes ago",
-      status: "in-progress"
-    },
-    {
-      id: "alert-3",
-      severity: "medium",
-      title: "Unusual Login Location",
-      description: "Login from new geographic location (Tokyo, Japan)",
-      user: {
-        name: "Emma Thompson",
-        email: "e.thompson@company.com"
-      },
-      timestamp: "1 hour ago",
-      status: "in-progress"
-    },
-    {
-      id: "alert-4",
-      severity: "high",
-      title: "Privilege Escalation Attempt",
-      description: "Unauthorized admin access attempt detected",
-      user: {
-        name: "David Park",
-        email: "d.park@company.com"
-      },
-      timestamp: "2 hours ago",
-      status: "new"
-    },
-    {
-      id: "alert-5",
-      severity: "low",
-      title: "Policy Violation",
-      description: "Accessed restricted website during work hours",
-      user: {
-        name: "Jessica Martinez",
-        email: "j.martinez@company.com"
-      },
-      timestamp: "3 hours ago",
-      status: "resolved"
-    },
-    {
-      id: "alert-6",
-      severity: "critical",
-      title: "Ransomware Pattern Detected",
-      description: "File encryption activity detected on endpoint",
-      user: {
-        name: "Robert Kim",
-        email: "r.kim@company.com"
-      },
-      timestamp: "4 hours ago",
-      status: "in-progress"
-    },
-    {
-      id: "alert-7",
-      severity: "medium",
-      title: "Phishing Email Interaction",
-      description: "User clicked on suspicious email link",
-      user: {
-        name: "Olivia Brown",
-        email: "o.brown@company.com"
-      },
-      timestamp: "5 hours ago",
-      status: "resolved"
-    },
-    {
-      id: "alert-8",
-      severity: "low",
-      title: "USB Device Connected",
-      description: "Unregistered USB device connected to workstation",
-      user: {
-        name: "James Wilson",
-        email: "j.wilson@company.com"
-      },
-      timestamp: "6 hours ago",
-      status: "dismissed"
-    }
-  ]
+  // Security alerts - Get from unified incidents data
+  const alerts: SecurityAlert[] = getDashboardAlerts()
   
   return {
     metrics,

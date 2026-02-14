@@ -10,13 +10,32 @@ const meta = {
     docs: {
       description: {
         component: 
-          'The AlertsTable component displays recent security alerts in a sortable, interactive table. ' +
-          'Features severity indicators (critical/high/medium/low), status badges (new/in-progress/resolved/dismissed), ' +
-          'user avatars, and action menus. ' +
-          'Severity colors: Critical (#EF4444), High (orange), Medium (#F59E0B), Low (#3B82F6). ' +
-          'Status colors: New (Primary), In Progress (#F59E0B), Resolved (#10B981), Dismissed (gray). ' +
-          'Uses Sentinel design tokens: Card Surface (#FEFEFE), Border (#E2E8F0), BG (#F8FAFC), ' +
-          'Text colors (#0F172A, #475569, #64748B).',
+          '## Recent Security Alerts Table\n\n' +
+          'Displays the first 8 incidents from the unified INCIDENTS data source.\n\n' +
+          '### Key Changes (Incidents Integration)\n\n' +
+          '- ✅ **Actions Column Removed**: Table now has 5 columns (was 6)\n' +
+          '- ✅ **Direct Navigation**: Row click navigates to `/incidents?open={id}` with auto-open side panel\n' +
+          '- ✅ **Unified Data**: Uses `getDashboardAlerts()` from incidents-data.ts\n' +
+          '- ✅ **View All Button**: Added "View All Incidents →" button below table\n\n' +
+          '### Table Columns\n\n' +
+          '1. **Severity**: Colored dot + icon (Critical/High/Medium/Low)\n' +
+          '2. **Alert**: Title and description\n' +
+          '3. **User**: Avatar, name, email\n' +
+          '4. **Time**: Relative timestamp (uses formatRelativeTime)\n' +
+          '5. **Status**: Badge (New/Acknowledged/In Progress/Resolved/Dismissed)\n\n' +
+          '### Design Tokens\n\n' +
+          'Uses Sentinel design tokens: Card Surface (#FEFEFE), Border (#E2E8F0), BG (#F8FAFC), Text colors (#0F172A, #475569, #64748B).\n\n' +
+          '### Severity Colors\n\n' +
+          '- Critical: #EF4444 (Red)\n' +
+          '- High: #F97316 (Orange)\n' +
+          '- Medium: #F59E0B (Amber)\n' +
+          '- Low: #10B981 (Green)\n\n' +
+          '### Status Colors\n\n' +
+          '- New: #3B82F6 (Blue - Info)\n' +
+          '- Acknowledged: #F59E0B (Amber - Warning)\n' +
+          '- In Progress: #F97316 (Orange)\n' +
+          '- Resolved: #10B981 (Green - Success)\n' +
+          '- Dismissed: #6B7280 (Gray)',
       },
     },
   },
@@ -189,7 +208,12 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Full table with 8 security alerts showing various severity levels and statuses.'
+        story: 
+          'Full table with 8 security alerts showing various severity levels and statuses. ' +
+          'This is the standard view on the Dashboard page. ' +
+          'Note: In production, this uses the first 8 incidents from `INCIDENTS` array via `getDashboardAlerts()`. ' +
+          'Clicking any row navigates to `/incidents?open={id}` with auto-open side panel. ' +
+          'Actions column has been removed - no three-dot menu.'
       }
     }
   }
