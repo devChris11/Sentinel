@@ -34,6 +34,7 @@
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
   --color-info: #3b82f6;
+  --color-orange: #f97316; /* For High Risk Level */
   
   /* Sentinel Custom: Dark Sidebar Palette */
   --color-sidebar-bg: #0f172a;
@@ -116,6 +117,7 @@
   --chart-3: #f59e0b; /* Amber 500 */
   --chart-4: #ef4444; /* Red 500 */
   --chart-5: #3b82f6; /* Blue 500 */
+  --chart-orange: #f97316; /* Orange 500 for High Risk */
   
   /* Sidebar (Dark) - NOT used in :root, but defined for reference */
   /* These are accessed via custom classes like bg-sidebar-bg */
@@ -147,6 +149,7 @@
   --chart-3: #f59e0b;
   --chart-4: #ef4444;
   --chart-5: #3b82f6;
+  --chart-orange: #f97316;
 }
 
 /* ===== BASE STYLES ===== */

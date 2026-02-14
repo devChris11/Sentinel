@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { Calendar, ShieldAlert } from "lucide-react"
+import { Calendar, LayoutDashboard } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -73,20 +73,23 @@ function TableSkeleton() {
 
 export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange>("7d")
+  // Initialize as empty to match server render, then update on client
   const [lastUpdated, setLastUpdated] = useState("")
   const [isLoading, setIsLoading] = useState(true)
 
   const data = useMemo(() => getDashboardData(dateRange), [dateRange])
   
-  // SESSION-ONLY state for alerts - resets on page refresh
+  // SESSION-ONLY state for alerts - resets when dateRange changes
   const [alerts, setAlerts] = useState(data.alerts)
-
-  // Sync alerts when date range changes
+  
+  // Sync alerts when dateRange changes (intentional data synchronization)
   useEffect(() => {
+    // This synchronizes local state with external data source
     setAlerts(data.alerts)
-  }, [data.alerts])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateRange])
 
-  // Initialize timestamp on client side only (prevents hydration mismatch)
+  // Initialize timestamp on client after hydration
   useEffect(() => {
     setLastUpdated(getLastUpdatedTimestamp())
   }, [])
@@ -122,7 +125,7 @@ export default function DashboardPage() {
         <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <ShieldAlert className="h-5 w-5" aria-hidden="true" />
+              <LayoutDashboard className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-[#0F172A] text-balance">
