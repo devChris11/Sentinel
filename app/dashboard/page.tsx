@@ -73,20 +73,23 @@ function TableSkeleton() {
 
 export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange>("7d")
+  // Initialize as empty to match server render, then update on client
   const [lastUpdated, setLastUpdated] = useState("")
   const [isLoading, setIsLoading] = useState(true)
 
   const data = useMemo(() => getDashboardData(dateRange), [dateRange])
   
-  // SESSION-ONLY state for alerts - resets on page refresh
+  // SESSION-ONLY state for alerts - resets when dateRange changes
   const [alerts, setAlerts] = useState(data.alerts)
-
-  // Sync alerts when date range changes
+  
+  // Sync alerts when dateRange changes (intentional data synchronization)
   useEffect(() => {
+    // This synchronizes local state with external data source
     setAlerts(data.alerts)
-  }, [data.alerts])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateRange])
 
-  // Initialize timestamp on client side only (prevents hydration mismatch)
+  // Initialize timestamp on client after hydration
   useEffect(() => {
     setLastUpdated(getLastUpdatedTimestamp())
   }, [])

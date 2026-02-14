@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   Dialog,
   DialogContent,
@@ -28,10 +28,10 @@ import {
 import {
   type RiskUser,
   getRiskColor,
-  sarahChenBreakdown,
-  sarahChenActivity,
-  sarahChenTrend,
-  adminNotes,
+  generateRiskBreakdown,
+  generateActivityTimeline,
+  generateTrendData,
+  generateAdminNotes,
 } from "@/lib/risk-data"
 
 interface UserDetailModalProps {
@@ -83,7 +83,7 @@ function RiskBreakdownBar({
   )
 }
 
-function ActivityTimeline() {
+function ActivityTimeline({ activity }: { activity: ReturnType<typeof generateActivityTimeline> }) {
   const severityIndicators: Record<string, { color: string; label: string }> = {
     critical: { color: "bg-danger", label: "Critical" },
     high: { color: "bg-orange", label: "High" },
@@ -93,12 +93,12 @@ function ActivityTimeline() {
 
   return (
     <div className="space-y-4">
-      {sarahChenActivity.map((event, idx) => {
+      {activity.map((event, idx) => {
         const config = severityIndicators[event.severity]
         return (
           <div key={idx} className="relative pl-6">
             <div className={`absolute left-0 top-1.5 h-3 w-3 rounded-full ${config.color}`} />
-            {idx < sarahChenActivity.length - 1 && (
+            {idx < activity.length - 1 && (
               <div className="absolute left-[5px] top-5 h-full w-px bg-content-border" />
             )}
             <p className="text-xs text-content-text-muted">{event.date}</p>
@@ -111,10 +111,10 @@ function ActivityTimeline() {
   )
 }
 
-function RiskTrendChart() {
+function RiskTrendChart({ trendData }: { trendData: ReturnType<typeof generateTrendData> }) {
   return (
     <ResponsiveContainer width="100%" height={220}>
-      <LineChart data={sarahChenTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+      <LineChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
         <ReferenceArea y1={8} y2={10} fill="#EF4444" fillOpacity={0.05} />
         <ReferenceArea y1={6.5} y2={8} fill="#F97316" fillOpacity={0.04} />
@@ -134,7 +134,7 @@ function RiskTrendChart() {
           labelStyle={{ color: "#64748B" }}
           formatter={(value: number | undefined) => value !== undefined ? [`${value.toFixed(1)}`, "Risk Score"] : ["N/A", "Risk Score"]}
         />
-        {sarahChenTrend
+        {trendData
           .filter((d) => d.event)
           .map((d, idx) => (
             <ReferenceLine key={idx} x={d.date} stroke="#CBD5E1" strokeDasharray="3 3" />
@@ -152,73 +152,137 @@ function RiskTrendChart() {
   )
 }
 
-export function UserDetailModal({ user, open, onOpenChange }: UserDetailModalProps) {
-  const [noteText, setNoteText] = useState("")
-  const [draftSaved, setDraftSaved] = useState(false)
-
-  if (!user) return null
-
+function ModalContent({ user }: { user: RiskUser }) {
   const riskColor = getRiskColor(user.riskLevel)
+  
+  // Generate dynamic data for this user
+  const breakdown = generateRiskBreakdown(user)
+  const activity = generateActivityTimeline(user)
+  const trendData = generateTrendData(user)
+  const notes = generateAdminNotes(user)
+  
+  // Initialize note state from localStorage
+  const [noteText, setNoteText] = useState(() => {
+    const NOTES_KEY = `sentinel-notes-${user.id}`
+    return localStorage.getItem(NOTES_KEY) || ""
+  })
+  const [draftSaved, setDraftSaved] = useState(() => {
+    const NOTES_KEY = `sentinel-notes-${user.id}`
+    return !!localStorage.getItem(NOTES_KEY)
+  })
+  const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+      }
+    }
+  }, [])
+  
+  const getRiskHeading = () => {
+    if (user.riskLevel === "critical" || user.riskLevel === "high") {
+      return "Why is this user high-risk?"
+    } else if (user.riskLevel === "medium") {
+      return "What are this user's risk factors?"
+    } else {
+      return "User risk assessment breakdown"
+    }
+  }
 
   const handleNoteChange = (value: string) => {
     setNoteText(value)
     setDraftSaved(false)
-    setTimeout(() => setDraftSaved(true), 1000)
+    
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+    }
+    
+    // Save to localStorage after 2 seconds of inactivity
+    saveTimeoutRef.current = setTimeout(() => {
+      const NOTES_KEY = `sentinel-notes-${user.id}`
+      if (value.trim()) {
+        localStorage.setItem(NOTES_KEY, value)
+        setDraftSaved(true)
+      } else {
+        localStorage.removeItem(NOTES_KEY)
+        setDraftSaved(false)
+      }
+    }, 2000)
+  }
+  
+  const handleSaveNote = () => {
+    // Clear draft from localStorage since it's now saved
+    const NOTES_KEY = `sentinel-notes-${user.id}`
+    localStorage.removeItem(NOTES_KEY)
+    setNoteText("")
+    setDraftSaved(false)
+    // In a real app, this would save to backend
+  }
+  
+  const handleCancelNote = () => {
+    // Keep draft in localStorage for next time
+    setNoteText("")
+    setDraftSaved(false)
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-full max-w-[700px] overflow-hidden border-content-border bg-content-surface p-0 text-content-text-strong shadow-lg">
-        <ScrollArea className="max-h-[90vh]">
-          <div className="p-6">
-            {/* Header */}
-            <DialogHeader className="mb-6">
-              <div className="flex items-start gap-4">
-                <div
-                  className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full text-xl font-bold text-white"
-                  style={{ backgroundColor: riskColor }}
-                >
-                  {user.avatar}
+    <ScrollArea className="max-h-[90vh]">
+      <div className="relative">
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-10 bg-content-surface px-6 pt-6 pb-4 mb-2">
+          <DialogHeader>
+            <div className="flex items-start gap-4">
+              <div
+                className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full text-xl font-bold text-white"
+                style={{ backgroundColor: riskColor }}
+              >
+                {user.avatar}
+              </div>
+              <div className="flex-1">
+                <DialogTitle className="text-xl font-semibold text-content-text-strong">
+                  {user.name}
+                </DialogTitle>
+                <DialogDescription className="mt-1 text-sm text-content-text-muted">
+                  {user.email} &middot; {user.department} Department
+                </DialogDescription>
+                <div className="mt-3 flex items-center gap-3">
+                  <span className="text-2xl font-bold" style={{ color: riskColor }}>
+                    {user.riskScore.toFixed(1)}/10
+                  </span>
+                  <Badge
+                    style={{
+                      backgroundColor: `${riskColor}15`,
+                      color: riskColor,
+                      borderColor: `${riskColor}33`,
+                    }}
+                  >
+                    {user.riskLevel.charAt(0).toUpperCase() + user.riskLevel.slice(1)}
+                  </Badge>
                 </div>
-                <div className="flex-1">
-                  <DialogTitle className="text-xl font-semibold text-content-text-strong">
-                    {user.name}
-                  </DialogTitle>
-                  <DialogDescription className="mt-1 text-sm text-content-text-muted">
-                    {user.email} &middot; {user.department} Department
-                  </DialogDescription>
-                  <div className="mt-3 flex items-center gap-3">
-                    <span className="text-2xl font-bold" style={{ color: riskColor }}>
-                      {user.riskScore.toFixed(1)}/10
-                    </span>
-                    <Badge
-                      style={{
-                        backgroundColor: `${riskColor}15`,
-                        color: riskColor,
-                        borderColor: `${riskColor}33`,
-                      }}
-                    >
-                      {user.riskLevel.charAt(0).toUpperCase() + user.riskLevel.slice(1)}
-                    </Badge>
-                  </div>
-                  <div className="mt-1 flex items-center gap-1">
-                    <TrendingUp className="h-3.5 w-3.5 text-danger" />
-                    <span className="text-xs text-danger">
-                      {user.trend === "up" ? "^" : user.trend === "down" ? "v" : "-"} {user.trendDelta.toFixed(1)} points vs last week
-                    </span>
-                  </div>
+                <div className="mt-1 flex items-center gap-1">
+                  <TrendingUp className="h-3.5 w-3.5 text-danger" />
+                  <span className="text-xs text-danger">
+                    {user.trend === "up" ? "^" : user.trend === "down" ? "v" : "-"} {user.trendDelta.toFixed(1)} points vs last week
+                  </span>
                 </div>
               </div>
-            </DialogHeader>
+            </div>
+          </DialogHeader>
+        </div>
 
-            {/* Risk Breakdown */}
+        {/* Scrollable Content */}
+        <div className="px-6 pb-6">
+          {/* Risk Breakdown */}
             <div className="mb-6 rounded-lg border border-content-border bg-content-bg p-5">
               <div className="mb-4 flex items-center gap-2">
                 <Shield className="h-4 w-4 text-content-text-muted" />
-                <h3 className="text-sm font-semibold text-content-text-strong">Why is this user high-risk?</h3>
+                <h3 className="text-sm font-semibold text-content-text-strong">{getRiskHeading()}</h3>
               </div>
               <div className="space-y-5">
-                {sarahChenBreakdown.map((item, idx) => (
+                {breakdown.map((item, idx) => (
                   <RiskBreakdownBar key={idx} {...item} />
                 ))}
               </div>
@@ -234,9 +298,9 @@ export function UserDetailModal({ user, open, onOpenChange }: UserDetailModalPro
                 <TrendingUp className="h-4 w-4 text-content-text-muted" />
                 <h3 className="text-sm font-semibold text-content-text-strong">90-Day Risk Trend</h3>
               </div>
-              <RiskTrendChart />
+              <RiskTrendChart trendData={trendData} />
               <div className="mt-3 flex flex-wrap gap-3">
-                {sarahChenTrend.filter(d => d.event).map((d, idx) => (
+                {trendData.filter(d => d.event).map((d, idx) => (
                   <div key={idx} className="flex items-center gap-1.5 text-xs text-content-text-muted">
                     <Calendar className="h-3 w-3" />
                     <span>{d.date}: {d.event}</span>
@@ -251,7 +315,7 @@ export function UserDetailModal({ user, open, onOpenChange }: UserDetailModalPro
                 <Calendar className="h-4 w-4 text-content-text-muted" />
                 <h3 className="text-sm font-semibold text-content-text-strong">Recent Activity (Last 30 Days)</h3>
               </div>
-              <ActivityTimeline />
+              <ActivityTimeline activity={activity} />
               <button className="mt-4 flex items-center gap-1 text-xs text-primary hover:text-primary/80 hover:underline">
                 <Link2 className="h-3 w-3" />
                 View full activity history
@@ -305,21 +369,21 @@ export function UserDetailModal({ user, open, onOpenChange }: UserDetailModalPro
                   variant="outline"
                   size="sm"
                   className="border-content-border bg-transparent text-content-text hover:bg-content-bg-alt hover:text-content-text-strong"
-                  onClick={() => setNoteText("")}
+                  onClick={handleCancelNote}
                 >
                   Cancel
                 </Button>
-                <Button size="sm" className="bg-primary text-white hover:bg-primary/90">
+                <Button size="sm" className="bg-primary text-white hover:bg-primary/90" onClick={handleSaveNote}>
                   Save Note
                 </Button>
               </div>
 
-              {adminNotes.length > 0 && (
+              {notes.length > 0 && (
                 <div className="mt-5 space-y-4">
                   <p className="text-xs font-medium text-content-text-muted">
-                    Previous Notes ({adminNotes.length}):
+                    Previous Notes ({notes.length}):
                   </p>
-                  {adminNotes.map((note, idx) => (
+                  {notes.map((note, idx) => (
                     <div key={idx}>
                       <Separator className="mb-3 bg-content-border" />
                       <p className="text-xs text-content-text-muted">
@@ -334,7 +398,18 @@ export function UserDetailModal({ user, open, onOpenChange }: UserDetailModalPro
               )}
             </div>
           </div>
-        </ScrollArea>
+        </div>
+      </ScrollArea>
+  )
+}
+
+export function UserDetailModal({ user, open, onOpenChange }: UserDetailModalProps) {
+  if (!user) return null
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] w-full max-w-[700px] overflow-hidden border-content-border bg-content-surface p-0 text-content-text-strong shadow-lg [&>button]:z-20">
+        <ModalContent key={user.id} user={user} />
       </DialogContent>
     </Dialog>
   )

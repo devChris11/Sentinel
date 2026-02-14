@@ -39,6 +39,7 @@ interface UserRiskTableProps {
   currentPage: number
   totalPages: number
   onPageChange: (page: number) => void
+  isFiltered: boolean
 }
 
 function TrendIcon({ trend }: { trend: "up" | "down" | "stable" }) {
@@ -67,7 +68,11 @@ function getAvatarColor(name: string) {
   return avatarColors[Math.abs(hash) % avatarColors.length]
 }
 
-export function UserRiskTable({ users, onUserClick, selectedUsers, onSelectAll, onSelectUser, totalCount, currentPage, totalPages, onPageChange }: UserRiskTableProps) {
+export function UserRiskTable({ users, onUserClick, selectedUsers, onSelectAll, onSelectUser, totalCount, currentPage, totalPages, onPageChange, isFiltered }: UserRiskTableProps) {
+  const fictionalTotal = 1247
+  const displayTotal = isFiltered ? totalCount : fictionalTotal
+  const displayLabel = isFiltered ? `${displayTotal} filtered users` : `${displayTotal} users`
+  
   return (
     <div className="rounded-lg border border-content-border bg-content-surface shadow-sm">
       {/* Desktop table */}
@@ -77,7 +82,11 @@ export function UserRiskTable({ users, onUserClick, selectedUsers, onSelectAll, 
             <TableRow className="border-content-border bg-content-bg-alt hover:bg-content-bg-alt">
               <TableHead className="w-[50px] text-xs font-medium uppercase tracking-wider text-content-text-muted">
                 <Checkbox
-                  checked={selectedUsers.length === users.length && users.length > 0}
+                  checked={
+                    selectedUsers.length > 0 && selectedUsers.length < users.length
+                      ? "indeterminate"
+                      : selectedUsers.length === users.length && users.length > 0
+                  }
                   onCheckedChange={onSelectAll}
                   aria-label="Select all users"
                 />
@@ -179,7 +188,15 @@ export function UserRiskTable({ users, onUserClick, selectedUsers, onSelectAll, 
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="border-content-border bg-content-surface text-content-text">
-                        <DropdownMenuItem className="cursor-pointer focus:bg-content-bg-alt focus:text-content-text-strong" onClick={(e) => e.stopPropagation()}>View Profile</DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="cursor-pointer focus:bg-content-bg-alt focus:text-content-text-strong" 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onUserClick(user)
+                          }}
+                        >
+                          View Profile
+                        </DropdownMenuItem>
                         <DropdownMenuItem className="cursor-pointer focus:bg-content-bg-alt focus:text-content-text-strong" onClick={(e) => e.stopPropagation()}>Assign Training</DropdownMenuItem>
                         <DropdownMenuItem className="cursor-pointer focus:bg-content-bg-alt focus:text-content-text-strong" onClick={(e) => e.stopPropagation()}>Add Note</DropdownMenuItem>
                         <DropdownMenuItem className="cursor-pointer focus:bg-content-bg-alt focus:text-content-text-strong" onClick={(e) => e.stopPropagation()}>Dismiss</DropdownMenuItem>
@@ -265,7 +282,7 @@ export function UserRiskTable({ users, onUserClick, selectedUsers, onSelectAll, 
       {/* Footer */}
       <div className="flex flex-col items-center justify-between gap-4 border-t border-content-border px-6 py-4 sm:flex-row">
         <p className="text-sm text-content-text-muted">
-          Showing {((currentPage - 1) * 20) + 1}-{Math.min(currentPage * 20, totalCount)} of {totalCount} users
+          Showing {((currentPage - 1) * 20) + 1}-{Math.min(currentPage * 20, totalCount)} of {displayLabel}
         </p>
         <Pagination className="mx-0 w-auto">
           <PaginationContent>

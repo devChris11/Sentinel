@@ -78,7 +78,7 @@ export default function RiskScoringPage() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedUsers(filteredAndSortedUsers.map(u => u.id))
+      setSelectedUsers(paginatedUsers.map(u => u.id))
     } else {
       setSelectedUsers([])
     }
@@ -117,6 +117,9 @@ export default function RiskScoringPage() {
     setCurrentPage(1)
   }
 
+  // Determine if filters are active
+  const isFiltered = searchQuery.trim() !== "" || riskFilter !== "all" || departmentFilter !== "all" || trendFilter !== "all"
+
   return (
     <main className="min-h-screen bg-content-bg">
       <div className="mx-auto max-w-[1600px] px-6 py-8 lg:px-10 space-y-6">
@@ -146,9 +149,10 @@ export default function RiskScoringPage() {
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
+            isFiltered={isFiltered}
           />
         ) : (
-          <EmptyState onClearFilters={() => { setSearchQuery(""); setRiskFilter("all") }} />
+          <EmptyState onClearFilters={() => { setSearchQuery(""); setRiskFilter("all"); setDepartmentFilter("all"); setTrendFilter("all"); setSortBy("score-desc") }} />
         )}
       </div>
       <UserDetailModal

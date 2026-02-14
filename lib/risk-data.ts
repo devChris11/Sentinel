@@ -413,3 +413,401 @@ export const adminNotes = [
   { date: "Feb 12, 2026 at 2:30 PM", author: "John Smith (Admin)", content: "Contacted user about MFA setup. User confirmed will enable by end of day." },
   { date: "Feb 10, 2026 at 9:15 AM", author: "Sarah Johnson", content: "User clicked phishing sim, assigned refresher training module. Following up next week." },
 ]
+
+export interface AdminNote {
+  date: string
+  author: string
+  content: string
+}
+
+// Dynamic data generators for modal
+export function generateRiskBreakdown(user: RiskUser): RiskBreakdownItem[] {
+  const categories = [
+    "Phishing Attempts",
+    "Suspicious Logins",
+    "Policy Violations",
+    "Data Exfiltration",
+    "Unauthorized Access",
+    "Malware Detected"
+  ]
+  
+  const weights = [30, 25, 20, 15, 5, 5]
+  
+  // Determine score ranges based on risk level
+  let topScoreMin = 8.0, topScoreMax = 9.5
+  if (user.riskLevel === "high") {
+    topScoreMin = 6.5
+    topScoreMax = 8.0
+  } else if (user.riskLevel === "medium") {
+    topScoreMin = 4.0
+    topScoreMax = 6.5
+  } else if (user.riskLevel === "low") {
+    topScoreMin = 2.0
+    topScoreMax = 4.0
+  }
+  
+  // Find the top risk factor category
+  const topFactorIndex = categories.findIndex(cat => cat === user.topRiskFactor)
+  
+  const breakdown: RiskBreakdownItem[] = categories.map((category, idx) => {
+    let score: number
+    let details: string[]
+    
+    // Top risk factor gets highest score
+    if (idx === topFactorIndex) {
+      score = topScoreMin + Math.random() * (topScoreMax - topScoreMin)
+    } else {
+      // Other categories get lower scores
+      score = Math.max(1.0, topScoreMin - 2 - Math.random() * 3)
+    }
+    
+    // Generate realistic details based on category and score
+    switch (category) {
+      case "Phishing Attempts":
+        if (score >= 8.0) {
+          details = [`Clicked ${Math.floor(3 + Math.random() * 4)}/10 simulations`, `Failed to report ${Math.floor(3 + Math.random() * 5)} suspicious emails`]
+        } else if (score >= 6.0) {
+          details = [`Clicked ${Math.floor(1 + Math.random() * 2)}/10 simulations`, `Reported ${Math.floor(8 + Math.random() * 4)} suspicious emails`]
+        } else if (score >= 3.0) {
+          details = [`Clicked ${Math.floor(0 + Math.random() * 2)}/10 simulations`, "Completed phishing awareness training"]
+        } else {
+          details = ["0/10 clicks - excellent", `Reported ${Math.floor(10 + Math.random() * 5)} suspicious emails`]
+        }
+        break
+        
+      case "Suspicious Logins":
+        if (score >= 8.0) {
+          details = ["MFA not enabled", `${Math.floor(3 + Math.random() * 4)} logins from unusual locations`]
+        } else if (score >= 6.0) {
+          details = ["MFA enabled recently", `${Math.floor(1 + Math.random() * 2)} failed login attempts`]
+        } else if (score >= 3.0) {
+          details = ["MFA enabled", "Some after-hours access detected"]
+        } else {
+          details = ["MFA enabled", "All logins from approved locations"]
+        }
+        break
+        
+      case "Policy Violations":
+        if (score >= 8.0) {
+          details = [`Completed ${Math.floor(0 + Math.random() * 2)}/5 required training`, `Password unchanged for ${Math.floor(180 + Math.random() * 180)} days`]
+        } else if (score >= 6.0) {
+          details = [`Completed ${Math.floor(2 + Math.random() * 2)}/5 required training`, "Some policy acknowledgments pending"]
+        } else if (score >= 3.0) {
+          details = [`Completed ${Math.floor(3 + Math.random() * 2)}/5 required training`, "Most policies acknowledged"]
+        } else {
+          details = ["5/5 training completed", "All policies up to date"]
+        }
+        break
+        
+      case "Data Exfiltration":
+        if (score >= 8.0) {
+          details = [`Downloaded ${Math.floor(200 + Math.random() * 800)}MB sensitive files`, "Unusual data access patterns detected"]
+        } else if (score >= 6.0) {
+          details = [`Downloaded ${Math.floor(50 + Math.random() * 150)}MB files`, "Some unusual access detected"]
+        } else if (score >= 3.0) {
+          details = [`Downloaded ${Math.floor(10 + Math.random() * 40)}MB files`, "Normal data access patterns"]
+        } else {
+          details = ["No unusual downloads", "All access within normal patterns"]
+        }
+        break
+        
+      case "Unauthorized Access":
+        if (score >= 8.0) {
+          details = [`${Math.floor(2 + Math.random() * 3)} privilege escalation attempts`, "Attempted to access restricted resources"]
+        } else if (score >= 6.0) {
+          details = [`${Math.floor(1 + Math.random() * 2)} failed access attempts`, "Minor permission issues"]
+        } else if (score >= 3.0) {
+          details = ["1 failed access attempt", "Proper access permissions maintained"]
+        } else {
+          details = ["No unauthorized access attempts", "All access properly authorized"]
+        }
+        break
+        
+      case "Malware Detected":
+        if (score >= 8.0) {
+          details = [`${Math.floor(2 + Math.random() * 3)} malware incidents`, "Some threats quarantined"]
+        } else if (score >= 6.0) {
+          details = ["1 malware incident resolved", "No active threats"]
+        } else if (score >= 3.0) {
+          details = ["1 low-risk incident", "System clean"]
+        } else {
+          details = ["No malware detected", "System clean"]
+        }
+        break
+        
+      default:
+        details = ["No data available"]
+    }
+    
+    return {
+      category,
+      score: parseFloat(score.toFixed(1)),
+      maxScore: 10,
+      weight: weights[idx],
+      details
+    }
+  })
+  
+  return breakdown
+}
+
+export function generateActivityTimeline(user: RiskUser): ActivityEvent[] {
+  const eventCount = 4 + Math.floor(Math.random() * 3) // 4-6 events
+  const events: ActivityEvent[] = []
+  
+  const now = new Date()
+  
+  // Generate dates for last 30 days
+  const generateDate = (daysAgo: number) => {
+    const date = new Date(now)
+    date.setDate(date.getDate() - daysAgo)
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    const hours = Math.floor(9 + Math.random() * 8) // 9 AM to 5 PM
+    const minutes = Math.floor(Math.random() * 60)
+    return `${months[date.getMonth()]} ${date.getDate()}, 2026 at ${hours}:${minutes.toString().padStart(2, '0')} ${hours >= 12 ? 'PM' : 'AM'}`
+  }
+  
+  // Severity distribution based on risk level
+  const getSeverity = (): "critical" | "high" | "medium" | "low" => {
+    const rand = Math.random()
+    if (user.riskLevel === "critical") {
+      if (rand < 0.5) return "critical"
+      if (rand < 0.8) return "high"
+      return "medium"
+    } else if (user.riskLevel === "high") {
+      if (rand < 0.3) return "critical"
+      if (rand < 0.7) return "high"
+      return "medium"
+    } else if (user.riskLevel === "medium") {
+      if (rand < 0.2) return "high"
+      if (rand < 0.6) return "medium"
+      return "low"
+    } else {
+      if (rand < 0.7) return "low"
+      return "medium"
+    }
+  }
+  
+  // Generate events based on top risk factor
+  for (let i = 0; i < eventCount; i++) {
+    const daysAgo = Math.floor(Math.random() * 30)
+    const severity = getSeverity()
+    let title = ""
+    let detail = ""
+    
+    // Mix events related to top risk factor with other activities
+    const useTopFactor = i < 2 || Math.random() < 0.5
+    
+    if (useTopFactor && user.topRiskFactor === "Phishing Attempts") {
+      const events = [
+        { title: "Clicked phishing simulation", detail: `Simulation: "${["Fake IT Support", "Urgent Account Verification", "Invoice Payment Request", "Password Reset"][Math.floor(Math.random() * 4)]}"` },
+        { title: "Failed to report suspicious email", detail: `Subject: "${["Urgent: Verify Account", "Action Required", "Important Security Update"][Math.floor(Math.random() * 3)]}"` },
+        { title: "Completed training module", detail: `Module: "${["Advanced Phishing Detection", "Email Security Basics", "Social Engineering Awareness"][Math.floor(Math.random() * 3)]}"` },
+      ]
+      const event = events[Math.floor(Math.random() * events.length)]
+      title = event.title
+      detail = event.detail
+    } else if (useTopFactor && user.topRiskFactor === "Policy Violations") {
+      const events = [
+        { title: "Completed training module", detail: `Module: "${["Security Awareness", "Data Protection", "Compliance Training"][Math.floor(Math.random() * 3)]}"` },
+        { title: "Failed training assessment", detail: `Score: ${Math.floor(40 + Math.random() * 30)}% (passing: 80%)` },
+        { title: "Password policy violation", detail: "Password unchanged for 180+ days" },
+      ]
+      const event = events[Math.floor(Math.random() * events.length)]
+      title = event.title
+      detail = event.detail
+    } else if (useTopFactor && user.topRiskFactor === "Suspicious Logins") {
+      const cities = ["Tokyo, Japan", "Berlin, Germany", "São Paulo, Brazil", "Mumbai, India", "Sydney, Australia"]
+      const events = [
+        { title: "Login from unusual location", detail: `Location: ${cities[Math.floor(Math.random() * cities.length)]}` },
+        { title: "Failed MFA enrollment", detail: "Error: Invalid authentication code" },
+        { title: "Multiple failed login attempts", detail: `${Math.floor(3 + Math.random() * 5)} attempts within 1 hour` },
+      ]
+      const event = events[Math.floor(Math.random() * events.length)]
+      title = event.title
+      detail = event.detail
+    } else if (useTopFactor && user.topRiskFactor === "Data Exfiltration") {
+      const events = [
+        { title: "Bulk file download", detail: `Downloaded ${Math.floor(100 + Math.random() * 900)}MB sensitive data` },
+        { title: "Unusual data access pattern", detail: `Accessed ${Math.floor(50 + Math.random() * 200)} files in ${Math.floor(1 + Math.random() * 3)} hours` },
+        { title: "USB device detected", detail: "Copied files to external storage" },
+      ]
+      const event = events[Math.floor(Math.random() * events.length)]
+      title = event.title
+      detail = event.detail
+    } else if (useTopFactor && user.topRiskFactor === "Unauthorized Access") {
+      const events = [
+        { title: "Privilege escalation attempt", detail: "Attempted to access admin resources" },
+        { title: "Access to restricted resource", detail: `File: ${["confidential_report.xlsx", "salary_data.csv", "strategic_plan.docx"][Math.floor(Math.random() * 3)]}` },
+        { title: "Failed permission request", detail: "Request denied by security team" },
+      ]
+      const event = events[Math.floor(Math.random() * events.length)]
+      title = event.title
+      detail = event.detail
+    } else if (useTopFactor && user.topRiskFactor === "Malware Detected") {
+      const events = [
+        { title: "Malware quarantined", detail: `File: suspicious_${Math.floor(1000 + Math.random() * 9000)}.exe` },
+        { title: "Security scan completed", detail: "No threats detected" },
+        { title: "Suspicious download blocked", detail: "Source: untrusted domain" },
+      ]
+      const event = events[Math.floor(Math.random() * events.length)]
+      title = event.title
+      detail = event.detail
+    } else {
+      // Generic security events
+      const events = [
+        { title: "Security awareness quiz completed", detail: `Score: ${Math.floor(70 + Math.random() * 30)}%` },
+        { title: "Password changed", detail: "Strong password policy followed" },
+        { title: "MFA enabled", detail: "Authenticator app configured" },
+        { title: "Security review completed", detail: "No issues found" },
+      ]
+      const event = events[Math.floor(Math.random() * events.length)]
+      title = event.title
+      detail = event.detail
+    }
+    
+    events.push({
+      date: generateDate(daysAgo),
+      severity,
+      title,
+      detail
+    })
+  }
+  
+  // Sort by date (most recent first)
+  events.sort((a, b) => {
+    const dateA = new Date(a.date)
+    const dateB = new Date(b.date)
+    return dateB.getTime() - dateA.getTime()
+  })
+  
+  return events
+}
+
+export function generateTrendData(user: RiskUser): TrendDataPoint[] {
+  const dataPoints: TrendDataPoint[] = []
+  const currentScore = user.riskScore
+  
+  // Calculate starting score based on trend
+  let startScore = currentScore
+  if (user.trend === "up") {
+    startScore = Math.max(1.0, currentScore - (user.trendDelta * 3)) // Started lower
+  } else if (user.trend === "down") {
+    startScore = Math.min(10.0, currentScore + (user.trendDelta * 3)) // Started higher
+  }
+  
+  const dates = []
+  const now = new Date()
+  
+  // Generate 18 date points (every 5 days for 90 days)
+  for (let i = 17; i >= 0; i--) {
+    const date = new Date(now)
+    date.setDate(date.getDate() - (i * 5))
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    dates.push(`${months[date.getMonth()]} ${date.getDate()}`)
+  }
+  
+  // Generate scores with progression
+  for (let i = 0; i < 18; i++) {
+    const progress = i / 17
+    let score: number
+    
+    if (user.trend === "up") {
+      // Gradually increase from startScore to currentScore
+      score = startScore + (currentScore - startScore) * progress
+      // Add some variance
+      score += (Math.random() - 0.5) * 0.5
+    } else if (user.trend === "down") {
+      // Gradually decrease from startScore to currentScore
+      score = startScore - (startScore - currentScore) * progress
+      // Add some variance
+      score += (Math.random() - 0.5) * 0.5
+    } else {
+      // Stable with minor fluctuations
+      score = currentScore + (Math.random() - 0.5) * 1.0
+    }
+    
+    // Keep within bounds
+    score = Math.max(0.5, Math.min(10.0, score))
+    
+    dataPoints.push({
+      date: dates[i],
+      score: parseFloat(score.toFixed(1))
+    })
+  }
+  
+  // Ensure last point matches current score
+  dataPoints[17].score = currentScore
+  
+  // Add 2-3 event markers at significant score changes
+  const eventIndices = [5, 10, 15].filter(() => Math.random() < 0.7)
+  
+  eventIndices.forEach(idx => {
+    if (idx < dataPoints.length) {
+      const eventOptions = [
+        "Clicked phishing sim",
+        "Completed training",
+        "Failed MFA enrollment",
+        "Policy violation",
+        "Suspicious login",
+        "Data access incident"
+      ]
+      dataPoints[idx].event = eventOptions[Math.floor(Math.random() * eventOptions.length)]
+    }
+  })
+  
+  return dataPoints
+}
+
+export function generateAdminNotes(user: RiskUser): AdminNote[] {
+  const noteCount = user.riskLevel === "critical" ? Math.floor(1 + Math.random() * 3) :
+                    user.riskLevel === "high" ? Math.floor(0 + Math.random() * 3) :
+                    user.riskLevel === "medium" ? Math.floor(0 + Math.random() * 2) :
+                    Math.floor(0 + Math.random() * 2)
+  
+  if (noteCount === 0) return []
+  
+  const notes: AdminNote[] = []
+  const admins = ["John Smith (Admin)", "Sarah Johnson", "Michael Chen", "Emma Wilson", "David Rodriguez"]
+  
+  const now = new Date()
+  
+  const generateDate = (weeksAgo: number) => {
+    const date = new Date(now)
+    date.setDate(date.getDate() - (weeksAgo * 7))
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    const hours = Math.floor(9 + Math.random() * 8)
+    const minutes = Math.floor(Math.random() * 60)
+    return `${months[date.getMonth()]} ${date.getDate()}, 2026 at ${hours}:${minutes.toString().padStart(2, '0')} ${hours >= 12 ? 'PM' : 'AM'}`
+  }
+  
+  const noteTemplates = [
+    "Contacted user about MFA setup. User confirmed will enable by end of week.",
+    "User clicked phishing sim, assigned refresher training. Following up next week.",
+    "Discussed policy violations with manager. Action plan in place.",
+    "User completed required training. Monitoring for behavior change.",
+    "Escalated to security team for investigation of suspicious activity.",
+    `Reviewed data access patterns. Appears to be ${user.riskLevel === "critical" || user.riskLevel === "high" ? "high risk" : "within normal parameters"}.`,
+    "Scheduled follow-up meeting for next week to review progress.",
+    "User acknowledged security concerns and agreed to complete training.",
+    "Implementing additional monitoring for this user account.",
+    "Manager notified of elevated risk score. Coordinating response plan."
+  ]
+  
+  for (let i = 0; i < noteCount; i++) {
+    notes.push({
+      date: generateDate(i),
+      author: admins[Math.floor(Math.random() * admins.length)],
+      content: noteTemplates[Math.floor(Math.random() * noteTemplates.length)]
+    })
+  }
+  
+  // Sort by date (most recent first)
+  notes.sort((a, b) => {
+    const dateA = new Date(a.date)
+    const dateB = new Date(b.date)
+    return dateB.getTime() - dateA.getTime()
+  })
+  
+  return notes
+}

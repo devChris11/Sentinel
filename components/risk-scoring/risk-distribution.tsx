@@ -1,5 +1,6 @@
 import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { users } from "@/lib/risk-data"
 
 interface StatCardProps {
   title: string
@@ -45,7 +46,7 @@ function StatCard({
           <ArrowRight className="h-3.5 w-3.5 text-content-text-muted" />
         )}
         <span
-          className="text-xs"
+          className="text-sm font-semibold"
           style={{ color: trend === "stable" ? "#64748B" : trendColor }}
         >
           {trendLabel}
@@ -56,24 +57,46 @@ function StatCard({
 }
 
 export function RiskDistribution() {
+  // Calculate actual counts from users array
+  const totalUsers = users.length
+  const criticalCount = users.filter(u => u.riskLevel === 'critical').length
+  const highCount = users.filter(u => u.riskLevel === 'high').length
+  const mediumCount = users.filter(u => u.riskLevel === 'medium').length
+  const lowCount = users.filter(u => u.riskLevel === 'low').length
+  
+  // Calculate percentages (of fictional 1,247 users for demo purposes)
+  const fictionalTotal = 1247
+  const criticalPercent = ((criticalCount / totalUsers) * 100 * (totalUsers / fictionalTotal) * fictionalTotal / totalUsers).toFixed(1)
+  const highPercent = ((highCount / totalUsers) * 100 * (totalUsers / fictionalTotal) * fictionalTotal / totalUsers).toFixed(1)
+  const mediumPercent = ((mediumCount / totalUsers) * 100 * (totalUsers / fictionalTotal) * fictionalTotal / totalUsers).toFixed(1)
+  const lowPercent = ((lowCount / totalUsers) * 100 * (totalUsers / fictionalTotal) * fictionalTotal / totalUsers).toFixed(1)
+  
+  // Fixed trend percentages for MVP (would be calculated from historical data in production)
+  const trends = {
+    critical: "12",
+    high: "8",
+    medium: "5",
+    low: "15"
+  }
+  
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
       <StatCard
         title="Critical Risk"
-        value="47"
-        percentage="3.8% of total"
+        value={criticalCount.toString()}
+        percentage={`${criticalPercent}% of total`}
         trend="up"
-        trendLabel="12% vs last week"
+        trendLabel={`${trends.critical}% vs last week`}
         badgeLabel="Critical"
         color="#EF4444"
         badgeClassName="border border-danger/20 bg-danger/10 text-danger hover:bg-danger/10"
       />
       <StatCard
         title="High Risk"
-        value="186"
-        percentage="14.9% of total"
+        value={highCount.toString()}
+        percentage={`${highPercent}% of total`}
         trend="down"
-        trendLabel="3% vs last week"
+        trendLabel={`${trends.high}% vs last week`}
         badgeLabel="High"
         color="#F97316"
         badgeClassName="border border-orange/20 bg-orange/10 text-orange hover:bg-orange/10"
@@ -81,13 +104,24 @@ export function RiskDistribution() {
       />
       <StatCard
         title="Medium Risk"
-        value="214"
-        percentage="17.2% of total"
+        value={mediumCount.toString()}
+        percentage={`${mediumPercent}% of total`}
         trend="stable"
-        trendLabel="No change"
+        trendLabel={`${trends.medium}% vs last week`}
         badgeLabel="Medium"
         color="#F59E0B"
         badgeClassName="border border-warning/20 bg-warning/10 text-warning hover:bg-warning/10"
+      />
+      <StatCard
+        title="Low Risk"
+        value={lowCount.toString()}
+        percentage={`${lowPercent}% of total`}
+        trend="up"
+        trendLabel={`${trends.low}% vs last week`}
+        badgeLabel="Low"
+        color="#10B981"
+        badgeClassName="border border-success/20 bg-success/10 text-success hover:bg-success/10"
+        trendIsGood
       />
     </div>
   )
