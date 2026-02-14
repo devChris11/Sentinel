@@ -161,6 +161,7 @@ export function AlertDetailModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#FEFEFE] border-[#E2E8F0]">
         <DialogHeader>
+          <DialogTitle className="sr-only">{alert.title}</DialogTitle>
           <button
             onClick={onClose}
             className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none"

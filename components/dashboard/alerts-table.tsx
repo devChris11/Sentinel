@@ -164,6 +164,13 @@ export function AlertsTable({ alerts, setAlerts }: AlertsTableProps) {
                   key={alert.id}
                   className="cursor-pointer hover:bg-[#F8FAFC] focus-within:bg-[#F8FAFC]"
                   tabIndex={0}
+                  onClick={() => handleViewDetails(alert)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      handleViewDetails(alert)
+                    }
+                  }}
                 >
                   {/* Severity */}
                   <TableCell>
@@ -219,7 +226,7 @@ export function AlertsTable({ alerts, setAlerts }: AlertsTableProps) {
                   </TableCell>
 
                   {/* Status */}
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${status.bg} ${status.text}`}
                     >
@@ -228,7 +235,7 @@ export function AlertsTable({ alerts, setAlerts }: AlertsTableProps) {
                   </TableCell>
 
                   {/* Actions */}
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger
                         className="rounded-md p-1.5 hover:bg-[#F1F5F9] focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
