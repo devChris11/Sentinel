@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { Calendar, ShieldAlert } from "lucide-react"
+import { Calendar, LayoutDashboard } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -122,7 +122,7 @@ export default function DashboardPage() {
         <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <ShieldAlert className="h-5 w-5" aria-hidden="true" />
+              <LayoutDashboard className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-[#0F172A] text-balance">

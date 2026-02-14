@@ -39,7 +39,7 @@ const ColorsShowcase = () => (
     {/* Semantic */}
     <section>
       <h2 className="text-2xl font-semibold mb-6 text-content-text-strong">Semantic Colors</h2>
-      <div className="grid grid-cols-4 gap-6">
+      <div className="grid grid-cols-5 gap-6">
         <ColorSwatch
           name="Success"
           hex="#10B981"
@@ -57,6 +57,12 @@ const ColorsShowcase = () => (
           hex="#EF4444"
           className="bg-danger"
           usage="High risk, critical alerts"
+        />
+        <ColorSwatch
+          name="Orange"
+          hex="#F97316"
+          className="bg-orange"
+          usage="High risk level, urgent warnings"
         />
         <ColorSwatch
           name="Info"
