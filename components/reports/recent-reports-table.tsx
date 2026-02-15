@@ -1,8 +1,7 @@
 "use client"
 
-import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { FileText, FileSpreadsheet } from "lucide-react"
+import { downloadReportCSV, getReportTypeFromRoute } from "@/lib/reports-export"
 import {
   Table,
   TableBody,
@@ -28,14 +27,10 @@ function getCategoryBadge(category: string) {
 }
 
 export function RecentReportsTable() {
-  const router = useRouter()
-
-  const handleExportCSV = (report: { reportType?: string; route?: string }) => {
-    if (
-      (report.reportType === "user-behavior-analytics" || report.reportType === "incident-threat-report") &&
-      report.route
-    ) {
-      router.push(`${report.route}?export=csv`)
+  const handleExportCSV = (report: { reportType?: string; route?: string; name: string }) => {
+    const reportType = report.reportType ?? getReportTypeFromRoute(report.route)
+    if (reportType) {
+      downloadReportCSV(reportType, report.name)
     }
   }
 
@@ -77,16 +72,7 @@ export function RecentReportsTable() {
               className="border-content-border transition-colors hover:bg-content-bg-alt"
             >
               <TableCell className="text-sm font-medium text-content-text-strong">
-                {report.route ? (
-                  <Link
-                    href={report.route}
-                    className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring rounded"
-                  >
-                    {report.name}
-                  </Link>
-                ) : (
-                  report.name
-                )}
+                {report.name}
               </TableCell>
               <TableCell>
                 {getCategoryBadge(report.category)}
