@@ -6,8 +6,7 @@ import { usePathname } from "next/navigation"
 import { 
   LayoutDashboard, 
   Shield, 
-  ShieldAlert,
-  AlertCircle, 
+  ShieldAlert, 
   FileText, 
   Settings,
   Menu,
