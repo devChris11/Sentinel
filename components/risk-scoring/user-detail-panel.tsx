@@ -1,0 +1,472 @@
+"use client"
+
+import { useEffect, useRef, useState } from "react"
+import { X, Shield, TrendingUp, Target, Calendar, BookOpen, Link2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Textarea } from "@/components/ui/textarea"
+import { Separator } from "@/components/ui/separator"
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+  ReferenceArea,
+} from "recharts"
+import {
+  type RiskUser,
+  getRiskColor,
+  generateRiskBreakdown,
+  generateActivityTimeline,
+  generateTrendData,
+  generateAdminNotes,
+} from "@/lib/risk-data"
+
+interface UserDetailPanelProps {
+  user: RiskUser | null
+  onClose: () => void
+}
+
+function RiskBreakdownBar({
+  category,
+  score,
+  maxScore,
+  weight,
+  details,
+}: {
+  category: string
+  score: number
+  maxScore: number
+  weight: number
+  details: string[]
+}) {
+  const percentage = (score / maxScore) * 100
+  let color = "#10B981"
+  if (score >= 8.0) color = "#EF4444"
+  else if (score >= 6.5) color = "#F97316"
+  else if (score >= 4.0) color = "#F59E0B"
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-content-text-strong">{category}: {score.toFixed(1)}/10</span>
+        <span className="text-xs text-content-text-muted">({weight}%)</span>
+      </div>
+      <div className="h-2 w-full rounded-full bg-content-border">
+        <div
+          className="h-2 rounded-full transition-all duration-500"
+          style={{ width: `${percentage}%`, backgroundColor: color }}
+        />
+      </div>
+      <div className="space-y-0.5 pl-3">
+        {details.map((detail, idx) => (
+          <p key={idx} className="text-xs text-content-text-muted">
+            <span className="text-content-text-muted mr-1">{">"}</span>
+            {detail}
+          </p>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ActivityTimeline({ activity }: { activity: ReturnType<typeof generateActivityTimeline> }) {
+  const severityIndicators: Record<string, { color: string; label: string }> = {
+    critical: { color: "bg-danger", label: "Critical" },
+    high: { color: "bg-orange", label: "High" },
+    medium: { color: "bg-warning", label: "Medium" },
+    low: { color: "bg-success", label: "Low" },
+  }
+
+  return (
+    <div className="space-y-4">
+      {activity.map((event, idx) => {
+        const config = severityIndicators[event.severity]
+        return (
+          <div key={idx} className="relative pl-6">
+            <div className={`absolute left-0 top-1.5 h-3 w-3 rounded-full ${config.color}`} />
+            {idx < activity.length - 1 && (
+              <div className="absolute left-[5px] top-5 h-full w-px bg-content-border" />
+            )}
+            <p className="text-xs text-content-text-muted">{event.date}</p>
+            <p className="mt-0.5 text-sm font-medium text-content-text-strong">{event.title}</p>
+            <p className="text-xs text-content-text-muted">{event.detail}</p>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function RiskTrendChart({ trendData }: { trendData: ReturnType<typeof generateTrendData> }) {
+  return (
+    <ResponsiveContainer width="100%" height={220}>
+      <LineChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+        <ReferenceArea y1={8} y2={10} fill="#EF4444" fillOpacity={0.05} />
+        <ReferenceArea y1={6.5} y2={8} fill="#F97316" fillOpacity={0.04} />
+        <ReferenceArea y1={4} y2={6.5} fill="#F59E0B" fillOpacity={0.03} />
+        <ReferenceArea y1={0} y2={4} fill="#10B981" fillOpacity={0.03} />
+        <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#64748B" }} tickLine={false} axisLine={false} />
+        <YAxis domain={[0, 10]} tick={{ fontSize: 10, fill: "#64748B" }} tickLine={false} axisLine={false} />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: "#FEFEFE",
+            border: "1px solid #E2E8F0",
+            borderRadius: "8px",
+            color: "#0F172A",
+            fontSize: "12px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+          }}
+          labelStyle={{ color: "#64748B" }}
+          formatter={(value: number | undefined) => value !== undefined ? [`${value.toFixed(1)}`, "Risk Score"] : ["N/A", "Risk Score"]}
+        />
+        {trendData
+          .filter((d) => d.event)
+          .map((d, idx) => (
+            <ReferenceLine key={idx} x={d.date} stroke="#CBD5E1" strokeDasharray="3 3" />
+          ))}
+        <Line
+          type="monotone"
+          dataKey="score"
+          stroke="#EF4444"
+          strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4, fill: "#EF4444", stroke: "#FEFEFE", strokeWidth: 2 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  )
+}
+
+export function UserDetailPanel({ user, onClose }: UserDetailPanelProps) {
+  const panelRef = useRef<HTMLDivElement>(null)
+  const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const currentUserIdRef = useRef<string | null>(null)
+  
+  // Initialize note state from localStorage
+  const [noteText, setNoteText] = useState(() => {
+    if (user) {
+      const NOTES_KEY = `sentinel-notes-${user.id}`
+      return localStorage.getItem(NOTES_KEY) || ""
+    }
+    return ""
+  })
+  
+  const [draftSaved, setDraftSaved] = useState(() => {
+    if (user) {
+      const NOTES_KEY = `sentinel-notes-${user.id}`
+      return !!localStorage.getItem(NOTES_KEY)
+    }
+    return false
+  })
+
+  // Reset note state when user changes
+  useEffect(() => {
+    if (user && currentUserIdRef.current !== user.id) {
+      currentUserIdRef.current = user.id
+      const NOTES_KEY = `sentinel-notes-${user.id}`
+      const savedNote = localStorage.getItem(NOTES_KEY) || ""
+      // Syncing with external state (localStorage)
+      // eslint-disable-next-line
+      setNoteText(savedNote)
+      setDraftSaved(!!savedNote)
+    } else if (!user) {
+      currentUserIdRef.current = null
+    }
+  }, [user])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  // Handle click outside and escape key
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        onClose()
+      }
+    }
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose()
+    }
+    if (user) {
+      document.addEventListener("mousedown", handleClickOutside)
+      document.addEventListener("keydown", handleEscape)
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("keydown", handleEscape)
+    }
+  }, [user, onClose])
+
+  const getRiskHeading = (riskLevel: string) => {
+    if (riskLevel === "critical" || riskLevel === "high") {
+      return "Why is this user high-risk?"
+    } else if (riskLevel === "medium") {
+      return "What are this user's risk factors?"
+    } else {
+      return "User risk assessment breakdown"
+    }
+  }
+
+  const handleNoteChange = (value: string) => {
+    if (!user) return
+    
+    setNoteText(value)
+    setDraftSaved(false)
+    
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+    }
+    
+    // Save to localStorage after 2 seconds of inactivity
+    saveTimeoutRef.current = setTimeout(() => {
+      const NOTES_KEY = `sentinel-notes-${user.id}`
+      if (value.trim()) {
+        localStorage.setItem(NOTES_KEY, value)
+        setDraftSaved(true)
+      } else {
+        localStorage.removeItem(NOTES_KEY)
+        setDraftSaved(false)
+      }
+    }, 2000)
+  }
+  
+  const handleSaveNote = () => {
+    if (!user) return
+    // Clear draft from localStorage since it's now saved
+    const NOTES_KEY = `sentinel-notes-${user.id}`
+    localStorage.removeItem(NOTES_KEY)
+    setNoteText("")
+    setDraftSaved(false)
+    // In a real app, this would save to backend
+  }
+  
+  const handleCancelNote = () => {
+    // Keep draft in localStorage for next time
+    setNoteText("")
+    setDraftSaved(false)
+  }
+
+  const riskColor = user ? getRiskColor(user.riskLevel) : ""
+  const breakdown = user ? generateRiskBreakdown(user) : []
+  const activity = user ? generateActivityTimeline(user) : []
+  const trendData = user ? generateTrendData(user) : []
+  const notes = user ? generateAdminNotes(user) : []
+
+  return (
+    <>
+      {/* Panel */}
+      <div
+        ref={panelRef}
+        className={`fixed right-0 top-0 z-50 flex h-screen w-[600px] flex-col border-l border-content-border bg-content-surface shadow-xl transition-transform duration-300 ease-in-out ${
+          user ? "translate-x-0" : "translate-x-full"
+        }`}
+        role="dialog"
+        aria-label="User details"
+      >
+        {user && (
+          <>
+            {/* Sticky Header */}
+            <div className="relative z-10 shrink-0 border-b border-content-border bg-content-surface p-6">
+              <button
+                onClick={onClose}
+                className="absolute right-4 top-4 rounded-md p-1.5 text-content-text-muted transition-colors hover:bg-content-bg-alt hover:text-content-text"
+                aria-label="Close panel"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <div className="flex flex-col gap-4 pr-8">
+                <div className="flex items-start gap-4">
+                  <div
+                    className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white"
+                    style={{ backgroundColor: riskColor }}
+                  >
+                    {user.avatar}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-xl font-semibold text-content-text-strong">
+                      {user.name}
+                    </h2>
+                    <p className="mt-1 text-sm text-content-text-muted truncate">
+                      {user.email} &middot; {user.department} Department
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold" style={{ color: riskColor }}>
+                    {user.riskScore.toFixed(1)}/10
+                  </span>
+                  <Badge
+                    style={{
+                      backgroundColor: `${riskColor}15`,
+                      color: riskColor,
+                      borderColor: `${riskColor}33`,
+                    }}
+                  >
+                    {user.riskLevel.charAt(0).toUpperCase() + user.riskLevel.slice(1)}
+                  </Badge>
+                  <div className="flex items-center gap-1">
+                    <TrendingUp className="h-3.5 w-3.5 text-danger" />
+                    <span className="text-xs text-danger">
+                      {user.trend === "up" ? "^" : user.trend === "down" ? "v" : "-"} {user.trendDelta.toFixed(1)} points vs last week
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex flex-col gap-6">
+                {/* Risk Breakdown */}
+                <section>
+                  <div className="mb-4 flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-content-text-muted" />
+                    <h3 className="text-sm font-semibold text-content-text-strong">{getRiskHeading(user.riskLevel)}</h3>
+                  </div>
+                  <div className="rounded-lg border border-content-border bg-content-bg p-5">
+                    <div className="space-y-5">
+                      {breakdown.map((item, idx) => (
+                        <RiskBreakdownBar key={idx} {...item} />
+                      ))}
+                    </div>
+                    <button className="mt-4 flex items-center gap-1 text-xs text-primary hover:text-primary/80 hover:underline transition-colors">
+                      <Link2 className="h-3 w-3" />
+                      How is risk score calculated?
+                    </button>
+                  </div>
+                </section>
+
+                {/* 90-Day Risk Trend */}
+                <section>
+                  <div className="mb-4 flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-content-text-muted" />
+                    <h3 className="text-sm font-semibold text-content-text-strong">90-Day Risk Trend</h3>
+                  </div>
+                  <div className="rounded-lg border border-content-border bg-content-bg p-5">
+                    <RiskTrendChart trendData={trendData} />
+                    <div className="mt-3 flex flex-wrap gap-3">
+                      {trendData.filter(d => d.event).map((d, idx) => (
+                        <div key={idx} className="flex items-center gap-1.5 text-xs text-content-text-muted">
+                          <Calendar className="h-3 w-3" />
+                          <span>{d.date}: {d.event}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+
+                {/* Recent Activity */}
+                <section>
+                  <div className="mb-4 flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-content-text-muted" />
+                    <h3 className="text-sm font-semibold text-content-text-strong">Recent Activity (Last 30 Days)</h3>
+                  </div>
+                  <div className="rounded-lg border border-content-border bg-content-bg p-5">
+                    <ActivityTimeline activity={activity} />
+                    <button className="mt-4 flex items-center gap-1 text-xs text-primary hover:text-primary/80 hover:underline transition-colors">
+                      <Link2 className="h-3 w-3" />
+                      View full activity history
+                    </button>
+                  </div>
+                </section>
+
+                {/* Recommended Actions */}
+                <section>
+                  <div className="mb-4 flex items-center gap-2">
+                    <Target className="h-4 w-4 text-content-text-muted" />
+                    <h3 className="text-sm font-semibold text-content-text-strong">Recommended Actions</h3>
+                  </div>
+                  <div className="rounded-lg border border-content-border bg-content-bg p-5">
+                    <Button className="w-full bg-primary text-white hover:bg-primary/90">
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      Assign &ldquo;Advanced Phishing Detection&rdquo;
+                    </Button>
+                    <div className="mt-4 space-y-2">
+                      <button className="block text-sm text-content-text hover:text-content-text-strong hover:underline transition-colors">
+                        Enable MFA Requirement
+                      </button>
+                      <button className="block text-sm text-content-text hover:text-content-text-strong hover:underline transition-colors">
+                        Schedule Security Review Meeting
+                      </button>
+                      <button className="block text-sm text-content-text hover:text-content-text-strong hover:underline transition-colors">
+                        Flag for Manual Investigation
+                      </button>
+                    </div>
+                    <button className="mt-4 flex items-center gap-1 text-xs text-primary hover:text-primary/80 hover:underline transition-colors">
+                      <Link2 className="h-3 w-3" />
+                      View all available training modules
+                    </button>
+                  </div>
+                </section>
+
+                {/* Admin Notes */}
+                <section>
+                  <h3 className="mb-4 text-sm font-semibold text-content-text-strong">Admin Notes</h3>
+                  <div className="rounded-lg border border-content-border bg-content-bg p-5">
+                    <Textarea
+                      placeholder="Add investigation notes..."
+                      value={noteText}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleNoteChange(e.target.value)}
+                      rows={4}
+                      className="border-content-border bg-content-surface text-sm text-content-text placeholder:text-content-text-muted focus-visible:ring-primary"
+                    />
+                    {noteText && (
+                      <p className="mt-1.5 text-xs text-content-text-muted">
+                        {draftSaved ? "Draft saved 2 seconds ago" : "Saving draft..."}
+                      </p>
+                    )}
+                    <div className="mt-3 flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-content-border bg-transparent text-content-text hover:bg-content-bg-alt hover:text-content-text-strong"
+                        onClick={handleCancelNote}
+                      >
+                        Cancel
+                      </Button>
+                      <Button size="sm" className="bg-primary text-white hover:bg-primary/90" onClick={handleSaveNote}>
+                        Save Note
+                      </Button>
+                    </div>
+
+                    {notes.length > 0 && (
+                      <div className="mt-5 space-y-4">
+                        <p className="text-xs font-medium text-content-text-muted">
+                          Previous Notes ({notes.length}):
+                        </p>
+                        {notes.map((note, idx) => (
+                          <div key={idx}>
+                            <Separator className="mb-3 bg-content-border" />
+                            <p className="text-xs text-content-text-muted">
+                              {note.date} - {note.author}
+                            </p>
+                            <p className="mt-1 text-sm text-content-text">
+                              &ldquo;{note.content}&rdquo;
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </section>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  )
+}

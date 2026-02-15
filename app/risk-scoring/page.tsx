@@ -1,24 +1,38 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { RiskHeader } from "@/components/risk-scoring/risk-header"
 import { RiskDistribution } from "@/components/risk-scoring/risk-distribution"
 import { UserRiskTable } from "@/components/risk-scoring/user-risk-table"
-import { UserDetailModal } from "@/components/risk-scoring/user-detail-modal"
+import { UserDetailPanel } from "@/components/risk-scoring/user-detail-panel"
 import { users, type RiskUser } from "@/lib/risk-data"
 
 const ITEMS_PER_PAGE = 20
 
 export default function RiskScoringPage() {
+  const searchParams = useSearchParams()
+  
   const [searchQuery, setSearchQuery] = useState("")
   const [riskFilter, setRiskFilter] = useState("all")
   const [sortBy, setSortBy] = useState("score-desc")
   const [selectedUser, setSelectedUser] = useState<RiskUser | null>(null)
-  const [modalOpen, setModalOpen] = useState(false)
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
   const [departmentFilter, setDepartmentFilter] = useState("all")
   const [trendFilter, setTrendFilter] = useState("all")
   const [currentPage, setCurrentPage] = useState(1)
+
+  // Auto-open panel if user email is in URL params (from Incident Detail Panel navigation)
+  useEffect(() => {
+    const userEmail = searchParams.get('user')
+    if (userEmail) {
+      const user = users.find((u) => u.email === userEmail)
+      if (user) {
+        // eslint-disable-next-line
+        setSelectedUser(user)
+      }
+    }
+  }, [searchParams])
 
   const filteredAndSortedUsers = useMemo(() => {
     let filtered = [...users]
@@ -73,7 +87,10 @@ export default function RiskScoringPage() {
 
   const handleUserClick = (user: RiskUser) => {
     setSelectedUser(user)
-    setModalOpen(true)
+  }
+
+  const handleClosePanel = () => {
+    setSelectedUser(null)
   }
 
   const handleSelectAll = (checked: boolean) => {
@@ -155,10 +172,9 @@ export default function RiskScoringPage() {
           <EmptyState onClearFilters={() => { setSearchQuery(""); setRiskFilter("all"); setDepartmentFilter("all"); setTrendFilter("all"); setSortBy("score-desc") }} />
         )}
       </div>
-      <UserDetailModal
+      <UserDetailPanel
         user={selectedUser}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
+        onClose={handleClosePanel}
       />
     </main>
   )

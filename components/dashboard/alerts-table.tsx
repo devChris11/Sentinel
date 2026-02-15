@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   AlertOctagon,
   AlertTriangle,
@@ -25,8 +26,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import { ArrowRight } from "lucide-react"
 import type { SecurityAlert } from "@/lib/dashboard-data"
-import { AlertDetailModal } from "./alert-detail-modal"
 
 // Severity config: dot color, icon component, icon color
 const severityConfig: Record<
@@ -42,6 +44,7 @@ const severityConfig: Record<
 // Status badge styles
 const statusConfig: Record<SecurityAlert["status"], { bg: string; text: string; label: string }> = {
   new: { bg: "bg-primary/10", text: "text-primary", label: "New" },
+  acknowledged: { bg: "bg-warning/10", text: "text-warning", label: "Acknowledged" },
   "in-progress": { bg: "bg-[#F59E0B]/10", text: "text-[#F59E0B]", label: "In Progress" },
   resolved: { bg: "bg-[#10B981]/10", text: "text-[#10B981]", label: "Resolved" },
   dismissed: { bg: "bg-gray-100", text: "text-gray-500", label: "Dismissed" },
@@ -81,6 +84,7 @@ interface AlertsTableProps {
 }
 
 export function AlertsTable({ alerts, setAlerts }: AlertsTableProps) {
+  const router = useRouter()
   const [selectedAlert, setSelectedAlert] = useState<SecurityAlert | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
 
@@ -99,16 +103,17 @@ export function AlertsTable({ alerts, setAlerts }: AlertsTableProps) {
   }
 
   const handleViewDetails = (alert: SecurityAlert) => {
-    setSelectedAlert(alert)
-    setIsDetailOpen(true)
+    // Navigate to incidents page with auto-open panel
+    router.push(`/incidents?open=${alert.id}`)
   }
 
   const handleModalStatusChange = (alertId: string, newStatus: SecurityAlert["status"]) => {
-    const messages = {
+    const messages: Record<SecurityAlert["status"], string> = {
+      new: "Alert status updated",
+      acknowledged: "Alert acknowledged",
       "in-progress": "Alert assigned to you",
       resolved: "Alert marked as resolved",
       dismissed: "Alert dismissed",
-      new: "Alert status updated",
     }
     handleStatusChange(alertId, newStatus, messages[newStatus])
   }
@@ -148,16 +153,13 @@ export function AlertsTable({ alerts, setAlerts }: AlertsTableProps) {
               <TableHead className="w-[200px] text-[#64748B]">User</TableHead>
               <TableHead className="w-[140px] text-[#64748B]">Time</TableHead>
               <TableHead className="w-[120px] text-[#64748B]">Status</TableHead>
-              <TableHead className="w-[60px]">
-                <span className="sr-only">Actions</span>
-              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {alerts.map((alert) => {
               const sev = severityConfig[alert.severity]
-              const status = statusConfig[alert.status]
-              const SevIcon = sev.icon
+              const status = statusConfig[alert.status] || statusConfig.new // Fallback to 'new' if status not found
+              const SevIcon = sev?.icon || AlertCircle // Fallback icon
 
               return (
                 <TableRow
@@ -208,7 +210,7 @@ export function AlertsTable({ alerts, setAlerts }: AlertsTableProps) {
                         {getInitials(alert.user.name)}
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-sm text-[#475569]">
+                        <p className="truncate text-sm text-content-text">
                           {alert.user.name}
                         </p>
                         <p className="truncate text-xs text-[#64748B]">
@@ -226,52 +228,12 @@ export function AlertsTable({ alerts, setAlerts }: AlertsTableProps) {
                   </TableCell>
 
                   {/* Status */}
-                  <TableCell onClick={(e) => e.stopPropagation()}>
+                  <TableCell>
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${status.bg} ${status.text}`}
                     >
                       {status.label}
                     </span>
-                  </TableCell>
-
-                  {/* Actions */}
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        className="rounded-md p-1.5 hover:bg-[#F1F5F9] focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
-                        aria-label={`Actions for ${alert.title}`}
-                      >
-                        <MoreHorizontal className="h-4 w-4 text-[#64748B]" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleViewDetails(alert)}>
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            handleStatusChange(alert.id, "in-progress", "Alert assigned to you")
-                          }
-                        >
-                          Assign to Me
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            handleStatusChange(alert.id, "resolved", "Alert marked as resolved")
-                          }
-                        >
-                          Mark Resolved
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          className="text-[#EF4444] focus:text-[#EF4444]"
-                          onClick={() =>
-                            handleStatusChange(alert.id, "dismissed", "Alert dismissed")
-                          }
-                        >
-                          Dismiss
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               )
@@ -280,13 +242,17 @@ export function AlertsTable({ alerts, setAlerts }: AlertsTableProps) {
         </Table>
       </div>
 
-      {/* Alert Detail Modal */}
-      <AlertDetailModal
-        alert={selectedAlert}
-        isOpen={isDetailOpen}
-        onClose={() => setIsDetailOpen(false)}
-        onStatusChange={handleModalStatusChange}
-      />
+      {/* View All Incidents Button */}
+      <div className="mt-4 flex justify-end">
+        <Button
+          variant="outline"
+          onClick={() => router.push('/incidents')}
+          className="border-content-border text-content-text"
+        >
+          View All Incidents
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
     </section>
   )
 }

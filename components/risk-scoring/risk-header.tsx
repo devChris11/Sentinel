@@ -101,11 +101,33 @@ export function RiskHeader({
               <SelectValue placeholder="All Risk Levels" />
             </SelectTrigger>
             <SelectContent className="border-content-border bg-content-surface text-content-text">
-              <SelectItem value="all" className="text-content-text focus:bg-content-bg-alt focus:text-content-text-strong">All Risk Levels</SelectItem>
-              <SelectItem value="critical" className="text-content-text focus:bg-content-bg-alt focus:text-content-text-strong">{"Critical (8.0+)"}</SelectItem>
-              <SelectItem value="high" className="text-content-text focus:bg-content-bg-alt focus:text-content-text-strong">{"High (6.5-7.9)"}</SelectItem>
-              <SelectItem value="medium" className="text-content-text focus:bg-content-bg-alt focus:text-content-text-strong">{"Medium (4.0-6.4)"}</SelectItem>
-              <SelectItem value="low" className="text-content-text focus:bg-content-bg-alt focus:text-content-text-strong">{"Low (<4.0)"}</SelectItem>
+              <SelectItem value="all" className="text-content-text focus:bg-content-bg-alt focus:text-content-text-strong">
+                All Risk Levels
+              </SelectItem>
+              <SelectItem value="critical" className="text-content-text focus:bg-content-bg-alt focus:text-content-text-strong">
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-danger" />
+                  Critical (8.0+)
+                </span>
+              </SelectItem>
+              <SelectItem value="high" className="text-content-text focus:bg-content-bg-alt focus:text-content-text-strong">
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-orange" />
+                  High (6.5-7.9)
+                </span>
+              </SelectItem>
+              <SelectItem value="medium" className="text-content-text focus:bg-content-bg-alt focus:text-content-text-strong">
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-warning" />
+                  Medium (4.0-6.4)
+                </span>
+              </SelectItem>
+              <SelectItem value="low" className="text-content-text focus:bg-content-bg-alt focus:text-content-text-strong">
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-success" />
+                  Low (&lt;4.0)
+                </span>
+              </SelectItem>
             </SelectContent>
           </Select>
           <Select value={sortBy} onValueChange={onSortChange}>
