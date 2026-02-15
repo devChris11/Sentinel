@@ -167,3 +167,39 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  /* Hide navigation elements */
+  nav,
+  header[role="banner"],
+  aside,
+  [data-sidebar],
+  button,
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Optimize for printing */
+  body {
+    background: white !important;
+  }
+  
+  /* Ensure charts and tables print correctly */
+  .recharts-wrapper,
+  table {
+    page-break-inside: avoid;
+  }
+  
+  /* Adjust margins for printing */
+  @page {
+    margin: 0.75in;
+  }
+  
+  /* Ensure good contrast for printing */
+  * {
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
