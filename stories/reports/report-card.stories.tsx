@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { ReportCard } from '@/components/reports/report-card'
 import { reports } from '@/lib/reports-data'
 
@@ -85,6 +85,7 @@ export const ComingSoonReport: Story = {
  * These are strategic reports for board meetings and C-level briefings.
  */
 export const ExecutiveReports: Story = {
+  args: { report: reports.find(r => r.id === 'risk-summary')!, onClick: noop },
   decorators: [
     () => (
       <div className="bg-content-bg p-8">
@@ -107,6 +108,7 @@ export const ExecutiveReports: Story = {
  * These focus on training effectiveness and departmental analytics.
  */
 export const OperationalReports: Story = {
+  args: { report: reports.find(r => r.id === 'user-behavior')!, onClick: noop },
   decorators: [
     () => (
       <div className="bg-content-bg p-8">
@@ -129,6 +131,7 @@ export const OperationalReports: Story = {
  * These provide detailed incident analysis and threat intelligence.
  */
 export const SecOpsReports: Story = {
+  args: { report: reports.find(r => r.id === 'incident-analysis')!, onClick: noop },
   decorators: [
     () => (
       <div className="bg-content-bg p-8">
@@ -151,6 +154,7 @@ export const SecOpsReports: Story = {
  * Demonstrates the full Reports Index page card grid layout.
  */
 export const AllReports: Story = {
+  args: { report: reports[0], onClick: noop },
   decorators: [
     () => (
       <div className="bg-content-bg p-8">
@@ -226,6 +230,7 @@ export const HoverState: Story = {
  * Single column layout with adjusted padding (p-5 instead of p-6).
  */
 export const MobileLayout: Story = {
+  args: { report: reports[0], onClick: noop },
   decorators: [
     () => (
       <div className="bg-content-bg p-4">

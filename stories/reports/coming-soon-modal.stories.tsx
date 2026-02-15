@@ -76,6 +76,7 @@ function ModalTrigger({ reportId }: { reportId: string }) {
  * Shows audit readiness and control gaps.
  */
 export const ComplianceOverview: Story = {
+  args: { report: reports.find(r => r.id === 'compliance-overview') ?? null, open: false, onOpenChange: () => {} },
   render: () => <ModalTrigger reportId="compliance-overview" />,
 }
 
@@ -86,6 +87,7 @@ export const ComplianceOverview: Story = {
  * Essential for CFO reporting and budget justification.
  */
 export const FinancialImpact: Story = {
+  args: { report: reports.find(r => r.id === 'financial-impact') ?? null, open: false, onOpenChange: () => {} },
   render: () => <ModalTrigger reportId="financial-impact" />,
 }
 
@@ -96,6 +98,7 @@ export const FinancialImpact: Story = {
  * Tracks completion rates, assessment scores, and knowledge retention.
  */
 export const TrainingEffectiveness: Story = {
+  args: { report: reports.find(r => r.id === 'training-effectiveness') ?? null, open: false, onOpenChange: () => {} },
   render: () => <ModalTrigger reportId="training-effectiveness" />,
 }
 
@@ -106,6 +109,7 @@ export const TrainingEffectiveness: Story = {
  * Enables targeted interventions across business units.
  */
 export const DepartmentBreakdown: Story = {
+  args: { report: reports.find(r => r.id === 'department-breakdown') ?? null, open: false, onOpenChange: () => {} },
   render: () => <ModalTrigger reportId="department-breakdown" />,
 }
 
@@ -116,6 +120,7 @@ export const DepartmentBreakdown: Story = {
  * Essential for SOC optimization and staffing decisions.
  */
 export const ResponseTimeMetrics: Story = {
+  args: { report: reports.find(r => r.id === 'response-time') ?? null, open: false, onOpenChange: () => {} },
   render: () => <ModalTrigger reportId="response-time" />,
 }
 
@@ -126,6 +131,7 @@ export const ResponseTimeMetrics: Story = {
  * Supports proactive defense planning and threat hunting.
  */
 export const ThreatLandscape: Story = {
+  args: { report: reports.find(r => r.id === 'threat-landscape') ?? null, open: false, onOpenChange: () => {} },
   render: () => <ModalTrigger reportId="threat-landscape" />,
 }
 
@@ -136,6 +142,7 @@ export const ThreatLandscape: Story = {
  * Click any button to see its modal content.
  */
 export const AllComingSoonModals: Story = {
+  args: { report: null, open: false, onOpenChange: () => {} },
   render: () => {
     const comingSoonReports = reports.filter(r => r.status === 'coming-soon')
     
@@ -161,6 +168,7 @@ export const AllComingSoonModals: Story = {
  * Shows spacing, typography, and visual hierarchy.
  */
 export const ContentStructure: Story = {
+  args: { report: reports.find(r => r.id === 'compliance-overview') ?? null, open: false, onOpenChange: () => {} },
   render: () => (
     <div className="space-y-8 max-w-2xl">
       <div>
@@ -243,6 +251,7 @@ export const ContentStructure: Story = {
  * From title (text-xl) to metrics (text-sm) to timestamp (text-xs).
  */
 export const TypographyHierarchy: Story = {
+  args: { report: reports.find(r => r.id === 'compliance-overview') ?? null, open: false, onOpenChange: () => {} },
   render: () => (
     <div className="space-y-6 max-w-md">
       <div>
@@ -297,6 +306,7 @@ export const TypographyHierarchy: Story = {
  * Uses • character instead of tiny dots for better readability.
  */
 export const KeyMetricsPattern: Story = {
+  args: { report: reports.find(r => r.id === 'compliance-overview') ?? null, open: false, onOpenChange: () => {} },
   render: () => (
     <div className="space-y-6 max-w-md">
       <div className="rounded-lg border border-content-border bg-content-surface p-6">
@@ -351,6 +361,7 @@ export const KeyMetricsPattern: Story = {
  * Outline variant with full width, matching Sentinel button standards.
  */
 export const ButtonStyling: Story = {
+  args: { report: reports.find(r => r.id === 'compliance-overview') ?? null, open: false, onOpenChange: () => {} },
   render: () => (
     <div className="space-y-6 max-w-md">
       <div className="rounded-lg border border-content-border bg-content-surface p-6">
@@ -391,6 +402,7 @@ export const ButtonStyling: Story = {
  * All icons use h-6 w-6 text-primary for consistency.
  */
 export const IconConsistency: Story = {
+  args: { report: null, open: false, onOpenChange: () => {} },
   render: () => {
     const comingSoonReports = reports.filter(r => r.status === 'coming-soon')
     

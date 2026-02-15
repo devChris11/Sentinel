@@ -90,7 +90,7 @@ export const reports: ReportCard[] = [
       estimatedTime: "~45 seconds",
       category: "operational",
       status: "available",
-      route: "/reports/user-behavior",
+      route: "/reports/user-behavior-analytics",
       lastGenerated: "3 hours ago",
     },
     {
@@ -199,6 +199,8 @@ export const reports: ReportCard[] = [
     category: string
     generated: string
     generatedBy: string
+    route?: string
+    reportType?: string
   }
   
   export const recentReports: RecentReport[] = [
@@ -208,6 +210,8 @@ export const reports: ReportCard[] = [
       category: "Operational",
       generated: "2 hours ago",
       generatedBy: "Sarah C.",
+      route: "/reports/user-behavior-analytics",
+      reportType: "user-behavior-analytics",
     },
     {
       id: "2",
@@ -215,6 +219,7 @@ export const reports: ReportCard[] = [
       category: "Executive",
       generated: "1 day ago",
       generatedBy: "Sarah C.",
+      route: "/reports/risk-summary",
     },
     {
       id: "3",
@@ -222,6 +227,7 @@ export const reports: ReportCard[] = [
       category: "SecOps",
       generated: "2 days ago",
       generatedBy: "Mike R.",
+      route: "/reports/incident-analysis",
     },
     {
       id: "4",

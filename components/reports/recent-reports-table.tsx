@@ -1,3 +1,7 @@
+"use client"
+
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { FileText, FileSpreadsheet } from "lucide-react"
 import {
   Table,
@@ -24,6 +28,14 @@ function getCategoryBadge(category: string) {
 }
 
 export function RecentReportsTable() {
+  const router = useRouter()
+
+  const handleExportCSV = (report: { reportType?: string; route?: string }) => {
+    if (report.reportType === "user-behavior-analytics" && report.route) {
+      router.push(`${report.route}?export=csv`)
+    }
+  }
+
   return (
     <div className="rounded-lg border border-content-border bg-content-surface p-6 shadow-sm">
       <div className="mb-4">
@@ -62,7 +74,16 @@ export function RecentReportsTable() {
               className="border-content-border transition-colors hover:bg-content-bg-alt"
             >
               <TableCell className="text-sm font-medium text-content-text-strong">
-                {report.name}
+                {report.route ? (
+                  <Link
+                    href={report.route}
+                    className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring rounded"
+                  >
+                    {report.name}
+                  </Link>
+                ) : (
+                  report.name
+                )}
               </TableCell>
               <TableCell>
                 {getCategoryBadge(report.category)}
@@ -77,6 +98,7 @@ export function RecentReportsTable() {
                 <div className="flex items-center justify-end gap-4">
                   <button
                     type="button"
+                    onClick={() => handleExportCSV(report)}
                     className="flex flex-col items-center gap-0.5 rounded p-1 text-content-text-muted transition-colors hover:bg-primary/5 hover:text-primary"
                     aria-label={`Export ${report.name} as CSV`}
                   >
