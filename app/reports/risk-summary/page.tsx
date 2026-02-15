@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react"
 import Link from "next/link"
-import { Calendar, Download, AlertTriangle, TrendingUp } from "lucide-react"
+import { Download, AlertTriangle, TrendingUp } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -114,8 +114,9 @@ export default function RiskSummaryReport() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6">
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-[1600px] px-6 py-8 lg:px-10">
+        <div className="flex flex-col gap-6">
         {/* Breadcrumb */}
         <Breadcrumb>
           <BreadcrumbList>
@@ -172,10 +173,6 @@ export default function RiskSummaryReport() {
 
         {/* Date range selector */}
         <div className="flex items-center gap-2">
-          <Calendar
-            className="h-4 w-4 text-muted-foreground"
-            aria-hidden="true"
-          />
           <Select value={range} onValueChange={handleRangeChange}>
             <SelectTrigger className="w-[200px] bg-card text-sm">
               <SelectValue />
@@ -234,6 +231,7 @@ export default function RiskSummaryReport() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   )

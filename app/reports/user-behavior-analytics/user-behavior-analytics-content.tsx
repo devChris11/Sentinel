@@ -129,8 +129,8 @@ export function UserBehaviorAnalyticsContent() {
   }, [searchParams, filteredUsers])
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-[1600px] px-6 py-8 lg:px-10 space-y-6">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-content-text-muted">
           <Link href="/reports" className="transition-colors hover:text-content-text-strong">

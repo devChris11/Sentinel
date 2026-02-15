@@ -10,28 +10,16 @@ const meta = {
       description: {
         component: 
           '## Reports Header Component\n\n' +
-          'Page header for the Reports Index, featuring the page title, subtitle, search input, and date range selector.\n\n' +
+          'Page header for the Reports Index, featuring the page title and subtitle with icon.\n\n' +
           '## Design Tokens\n\n' +
           '- `bg-primary` (#6366F1) - Icon container background\n' +
           '- `text-content-text-strong` (#0F172A) - Page title\n' +
-          '- `text-content-text-muted` (#64748B) - Subtitle and placeholder text\n' +
-          '- `bg-content-surface` (#FEFEFE) - Input/select backgrounds\n' +
-          '- `border-content-border` (#E2E8F0) - Input/select borders\n\n' +
+          '- `text-content-text-muted` (#64748B) - Subtitle text\n\n' +
           '## Layout Pattern\n\n' +
-          'Matches the Dashboard and Incidents page headers exactly:\n' +
-          '- Left: Icon + Title + Subtitle\n' +
-          '- Right: Search + Date Range (stacked on mobile)\n' +
-          '- Spacing: gap-3 between elements, gap-4 on desktop\n\n' +
-          '## Responsive Behavior\n\n' +
-          '- Desktop (lg): Horizontal layout, actions on right\n' +
-          '- Tablet/Mobile: Vertical stack, full-width inputs\n' +
-          '- Search: w-[200px] on desktop, w-full on mobile\n' +
-          '- Date Range: w-[160px] on desktop, w-full on mobile\n\n' +
+          '- Icon (FileText) + Title + Subtitle in a single row\n' +
+          '- Spacing: gap-3 between elements\n\n' +
           '## Accessibility\n\n' +
-          '- FileText icon has aria-hidden="true"\n' +
-          '- Search input has descriptive placeholder\n' +
-          '- Select has proper semantic markup\n' +
-          '- All interactive elements keyboard accessible',
+          '- FileText icon has aria-hidden="true"',
       },
     },
   },
@@ -51,8 +39,7 @@ type Story = StoryObj<typeof meta>
 /**
  * ## Default Header
  * 
- * Standard Reports page header with search and date range selector.
- * Shows the default state with "Last 30 Days" selected.
+ * Standard Reports page header with icon, title, and subtitle.
  */
 export const Default: Story = {}
 
@@ -60,7 +47,6 @@ export const Default: Story = {}
  * ## Desktop Layout
  * 
  * Shows the header at desktop width (1024px+).
- * Title and actions are side-by-side in a single row.
  */
 export const DesktopLayout: Story = {
   parameters: {
@@ -74,7 +60,6 @@ export const DesktopLayout: Story = {
  * ## Tablet Layout
  * 
  * Shows the header at tablet width (768px-1023px).
- * Actions start to stack vertically while maintaining some horizontal space.
  */
 export const TabletLayout: Story = {
   parameters: {
@@ -88,7 +73,6 @@ export const TabletLayout: Story = {
  * ## Mobile Layout
  * 
  * Shows the header at mobile width (<768px).
- * All elements stack vertically with full-width inputs.
  */
 export const MobileLayout: Story = {
   parameters: {
@@ -145,7 +129,7 @@ export const IconComparison: Story = {
  * ## Typography Hierarchy
  * 
  * Demonstrates the text hierarchy in the header.
- * Title (text-3xl), subtitle (text-sm), placeholder (text-sm muted).
+ * Title (text-3xl), subtitle (text-sm muted).
  */
 export const TypographyHierarchy: Story = {
   decorators: [
@@ -163,10 +147,6 @@ export const TypographyHierarchy: Story = {
               Generate and export security intelligence reports
             </p>
           </div>
-          <div>
-            <p className="text-xs font-mono text-content-text-muted mb-1">text-sm placeholder</p>
-            <p className="text-sm text-content-text-muted">Search reports...</p>
-          </div>
         </div>
       </div>
     ),
@@ -174,23 +154,7 @@ export const TypographyHierarchy: Story = {
 }
 
 /**
- * ## Input States
- * 
- * Shows the search and date range inputs with their various states.
- * Demonstrates focus rings and hover effects.
- */
-export const InputStates: Story = {
-  parameters: {
-    docs: {
-      description: {
-        story: 'Focus on the search input or date range selector to see the focus ring (ring-2 ring-primary).',
-      },
-    },
-  },
-}
-
-/**
- ## Full Width Container
+ * ## Full Width Container
  * 
  * Shows the header at maximum width (1600px container).
  * Demonstrates spacing at the largest supported viewport.

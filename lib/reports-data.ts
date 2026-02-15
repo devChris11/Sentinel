@@ -142,7 +142,7 @@ export const reports: ReportCard[] = [
       estimatedTime: "~60 seconds",
       category: "secops",
       status: "available",
-      route: "/reports/incident-analysis",
+      route: "/reports/incident-threat-report",
       lastGenerated: "1 day ago",
     },
     {
@@ -223,11 +223,12 @@ export const reports: ReportCard[] = [
     },
     {
       id: "3",
-      name: "Incident Analysis",
+      name: "Incident & Threat Intelligence",
       category: "SecOps",
-      generated: "2 days ago",
+      generated: "1 day ago",
       generatedBy: "Mike R.",
-      route: "/reports/incident-analysis",
+      route: "/reports/incident-threat-report",
+      reportType: "incident-threat-report",
     },
     {
       id: "4",

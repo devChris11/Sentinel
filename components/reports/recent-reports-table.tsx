@@ -31,7 +31,10 @@ export function RecentReportsTable() {
   const router = useRouter()
 
   const handleExportCSV = (report: { reportType?: string; route?: string }) => {
-    if (report.reportType === "user-behavior-analytics" && report.route) {
+    if (
+      (report.reportType === "user-behavior-analytics" || report.reportType === "incident-threat-report") &&
+      report.route
+    ) {
       router.push(`${report.route}?export=csv`)
     }
   }
