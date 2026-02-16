@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback, useEffect } from "react"
+import { useState, useMemo, useCallback, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -34,6 +34,7 @@ export function UserBehaviorAnalyticsContent() {
   const [filters, setFilters] = useState<FilterState>(defaultFilters)
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
+  const scrollRestoreRef = useRef<number | null>(null)
 
   const hasActiveFilters =
     filters.department !== "All Departments" ||
@@ -69,18 +70,30 @@ export function UserBehaviorAnalyticsContent() {
   }, [selectedUserIds, activeDepartmentFilter, filters.role, filters.search])
 
   const handleDepartmentClick = useCallback((department: string) => {
+    scrollRestoreRef.current = window.scrollY
     setSelectedDepartment((prev) => (prev === department ? null : department))
     setSelectedUserIds([])
   }, [])
 
   const handleFilterChange = useCallback((newFilters: FilterState) => {
+    scrollRestoreRef.current = window.scrollY
     setFilters(newFilters)
     setSelectedDepartment(null)
     setSelectedUserIds([])
   }, [])
 
+  const handleSelectionChange = useCallback((userIds: string[]) => {
+    scrollRestoreRef.current = window.scrollY
+    setSelectedUserIds(userIds)
+  }, [])
+
   const clearChartFilter = useCallback(() => {
+    scrollRestoreRef.current = window.scrollY
     setSelectedDepartment(null)
+  }, [])
+
+  const handleExportPDF = useCallback(() => {
+    window.print()
   }, [])
 
   const handleExportCSV = useCallback(() => {
@@ -128,6 +141,18 @@ export function UserBehaviorAnalyticsContent() {
     }
   }, [searchParams, filteredUsers])
 
+  // Restore scroll position after table re-renders from filter changes (prevents scroll jump)
+  useEffect(() => {
+    if (scrollRestoreRef.current !== null) {
+      const pos = scrollRestoreRef.current
+      scrollRestoreRef.current = null
+      requestAnimationFrame(() => {
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight
+        window.scrollTo(0, Math.min(pos, maxScroll))
+      })
+    }
+  }, [filteredUsers, activeDepartmentFilter, filters.role, filters.search, selectedUserIds])
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-[1600px] px-6 py-8 lg:px-10 space-y-6">
@@ -155,25 +180,11 @@ export function UserBehaviorAnalyticsContent() {
               </p>
             </div>
           </div>
-          <Button variant="outline" onClick={handleExportCSV} className="gap-1.5 self-start border-content-border">
+          <Button variant="outline" onClick={handleExportPDF} className="gap-1.5 self-start border-content-border print:hidden">
             <Download className="h-4 w-4" aria-hidden />
-            Export CSV
+            Export PDF
           </Button>
         </div>
-
-        {/* Filters */}
-        <ReportFilters
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          hasActiveFilters={hasActiveFilters}
-          userSearch={
-            <UserSearchPopover
-              users={userBehaviorData.highRiskUsers}
-              selectedUserIds={selectedUserIds}
-              onSelectionChange={setSelectedUserIds}
-            />
-          }
-        />
 
         {/* Active Chart Filter Chip */}
         {selectedDepartment && (
@@ -215,12 +226,45 @@ export function UserBehaviorAnalyticsContent() {
           companyAvg={userBehaviorData.summary.avgReportingRate}
         />
 
-        {/* High-Risk Users Table - key resets pagination when filters change */}
-        <HighRiskTable
-          key={`${activeDepartmentFilter}-${filters.role}-${filters.search}-${selectedUserIds.join(",")}`}
-          users={filteredUsers}
-          onExportCSV={handleExportCSV}
-        />
+        {/* High-Risk Users Section - title + pill | Export, then filters, then table */}
+        <section className="pt-10">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-content-text-strong">
+                High-Risk Users Requiring Attention
+              </h2>
+              <span className="rounded-full bg-danger/10 px-2.5 py-1 text-xs font-medium text-danger">
+                {filteredUsers.length} users
+              </span>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleExportCSV} className="gap-1.5 print:hidden">
+              <Download className="h-4 w-4" aria-hidden />
+              Export List
+            </Button>
+          </div>
+
+          {/* Filters and search - below title, above table */}
+          <div className="mb-4">
+            <ReportFilters
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              hasActiveFilters={hasActiveFilters}
+              userSearch={
+                <UserSearchPopover
+                  users={userBehaviorData.highRiskUsers}
+                  selectedUserIds={selectedUserIds}
+                  onSelectionChange={handleSelectionChange}
+                />
+              }
+            />
+          </div>
+
+          {/* High-Risk Users Table - key resets pagination when filters change */}
+          <HighRiskTable
+            key={`${activeDepartmentFilter}-${filters.role}-${filters.search}-${selectedUserIds.join(",")}`}
+            users={filteredUsers}
+          />
+        </section>
       </div>
     </div>
   )

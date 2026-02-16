@@ -27,12 +27,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { Download, MoreHorizontal, ArrowUp, ArrowDown, UserCircle, BookOpen, Mail } from "lucide-react"
+import { MoreHorizontal, ArrowUp, ArrowDown, UserCircle, BookOpen, Mail } from "lucide-react"
 import type { HighRiskUser, RiskLevel } from "@/lib/user-behavior-data"
 
 interface HighRiskTableProps {
   users: HighRiskUser[]
-  onExportCSV: () => void
 }
 
 type SortField = "name" | "department" | "reportingRate" | "timeToReport" | "riskLevel"
@@ -56,7 +55,7 @@ function getRateBarColor(rate: number) {
 
 const PAGE_SIZE = 20
 
-export function HighRiskTable({ users, onExportCSV }: HighRiskTableProps) {
+export function HighRiskTable({ users }: HighRiskTableProps) {
   const [sortField, setSortField] = useState<SortField>("riskLevel")
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc")
   const [currentPage, setCurrentPage] = useState(1)
@@ -114,11 +113,6 @@ export function HighRiskTable({ users, onExportCSV }: HighRiskTableProps) {
   if (users.length === 0) {
     return (
       <Card className="border-content-border bg-content-surface p-6">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-content-text-strong">
-            High-Risk Users Requiring Attention
-          </h3>
-        </div>
         <div className="flex flex-col items-center justify-center py-12">
           <p className="text-sm text-content-text-muted">No users match the current filters</p>
           <p className="mt-1 text-xs text-content-text-muted">Adjust filters to see results</p>
@@ -129,21 +123,6 @@ export function HighRiskTable({ users, onExportCSV }: HighRiskTableProps) {
 
   return (
     <Card className="border-content-border bg-content-surface p-6">
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <h3 className="text-lg font-semibold text-content-text-strong">
-            High-Risk Users Requiring Attention
-          </h3>
-          <span className="rounded-full bg-danger/10 px-2.5 py-1 text-xs font-medium text-danger">
-            {users.length} users
-          </span>
-        </div>
-        <Button variant="outline" size="sm" onClick={onExportCSV} className="gap-1.5">
-          <Download className="h-4 w-4" aria-hidden />
-          Export List
-        </Button>
-      </div>
-
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>

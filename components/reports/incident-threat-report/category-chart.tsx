@@ -36,6 +36,28 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<
   )
 }
 
+const LABEL_TOP_PADDING = 12
+const LABEL_LEFT_PADDING = 20
+
+/** Custom XAxis tick with top and left padding so labels sit directly under each bar */
+function XAxisTick({ x, y, payload }: { x?: number; y?: number; payload?: { value: string } }) {
+  if (!payload?.value) return null
+  return (
+    <g transform={`translate(${(x ?? 0) + LABEL_LEFT_PADDING},${(y ?? 0) + LABEL_TOP_PADDING})`}>
+      <text
+        x={0}
+        y={0}
+        transform="rotate(-25)"
+        textAnchor="end"
+        fontSize={11}
+        fill="var(--color-content-text)"
+      >
+        {payload.value}
+      </text>
+    </g>
+  )
+}
+
 function ChangeLabel({ x, y, width, value }: { x?: number; y?: number; width?: number; value?: number }) {
   if (value === undefined || Math.abs(value) <= 10) return null
   const isPositive = value > 0
@@ -59,19 +81,17 @@ export function CategoryChart({ data, activeCategory, onCategoryClick }: Categor
         <h3 className="text-lg font-semibold text-content-text-strong">Incidents by Category</h3>
         <p className="text-xs text-content-text-muted mt-0.5">7-day distribution</p>
       </div>
-      <div className="h-[280px]">
+      <div className="h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 20, right: 10, left: -10, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
             <XAxis
               dataKey="category"
-              tick={{ fontSize: 11, fill: "var(--color-content-text)" }}
+              tick={<XAxisTick />}
               tickLine={false}
               axisLine={{ stroke: "var(--color-border)" }}
               interval={0}
-              angle={-30}
-              textAnchor="end"
-              height={60}
+              height={80}
             />
             <YAxis
               tick={{ fontSize: 11, fill: "var(--color-content-text)" }}

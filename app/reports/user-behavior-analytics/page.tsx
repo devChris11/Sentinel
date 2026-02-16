@@ -1,10 +1,5 @@
-import { Suspense } from "react"
-import { UserBehaviorAnalyticsContent } from "./user-behavior-analytics-content"
+import UserBehaviorAnalyticsClient from "./user-behavior-analytics-client"
 
 export default function UserBehaviorAnalyticsPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background p-4 md:p-8 animate-pulse" />}>
-      <UserBehaviorAnalyticsContent />
-    </Suspense>
-  )
+  return <UserBehaviorAnalyticsClient />
 }

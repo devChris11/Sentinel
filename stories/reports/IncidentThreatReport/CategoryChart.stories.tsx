@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "## Category Breakdown Chart\n\nVertical bar chart showing incident distribution by type (Phishing, Malware, Policy Violation, etc.). Each bar shows count with percentage change vs last week above (red = increase, green = decrease). Click bar to filter incidents table. Active category highlighted, others dimmed to 40% opacity.\n\nRelated: [Severity Chart](./SeverityChart), [Incidents Table](./IncidentsTable), [Report Filters](./ReportFilters)",
+          "## Incidents by Category Chart\n\nVertical bar chart (320px height) showing incident distribution by type (Phishing, Malware, Policy Violation, etc.). X-axis labels use a custom tick with 12px top padding (so they don't touch the chart) and 8px left padding (so they sit directly under each bar). Each bar shows count with percentage change vs last week above (red = increase, green = decrease). Click bar to filter incidents table. Active category highlighted, others dimmed to 40% opacity. Height matches Severity Distribution chart.\n\nRelated: [Severity Chart](./SeverityChart), [Incidents Table](./IncidentsTable), [Report Filters](./ReportFilters)",
       },
     },
   },

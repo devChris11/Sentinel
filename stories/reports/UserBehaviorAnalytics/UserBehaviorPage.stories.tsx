@@ -9,7 +9,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "## User Behavior Analytics Report\n\nFull operational report for security admins. Training effectiveness, phishing simulation metrics, departmental gaps. Use cases: identify weak departments, target training, export high-risk user lists. Filters: department, role, date range, search. Department chart click filters table. CSV export respects filters.\n\nRelated: [MetricsCards](./MetricsCards), [DepartmentChart](./DepartmentChart), [ReportFilters](./ReportFilters)",
+          "## User Behavior Analytics Report\n\nFull operational report for security admins. Training effectiveness, phishing simulation metrics, departmental gaps. **Layout:** Page header with Export PDF; metrics cards; department and trend charts; Behavioral Insights; High-Risk section (title + pill | Export List, filters below title, table). Filters (department, role, date range, user search) sit below the High-Risk title. Department chart click filters table. Export PDF prints full page; Export List downloads filtered CSV. Scroll position preserved when filters change.\n\nRelated: [MetricsCards](./MetricsCards), [DepartmentChart](./DepartmentChart), [ReportFilters](./ReportFilters), [HighRiskTable](./HighRiskTable)",
       },
     },
   },
