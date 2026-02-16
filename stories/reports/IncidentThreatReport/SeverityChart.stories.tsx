@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "## Severity Distribution Chart\n\nDonut chart (280px) showing incident breakdown by severity (Critical/High/Medium/Low). Center displays total count. Legend on right shows count and percentage. Click slice or legend to filter. Active severity highlighted, others dimmed to 35% opacity. Tooltip has elevated z-index to appear above center label. Colors: Critical (red), High (orange), Medium (amber), Low (green).\n\nRelated: [Category Chart](./CategoryChart), [Incidents Table](./IncidentsTable), [Report Filters](./ReportFilters)",
+          "## Severity Distribution Chart\n\nDonut chart (320×320px) showing incident breakdown by severity (Critical/High/Medium/Low). Height matches Incidents by Category chart. Center displays total count. Legend on right shows count and percentage. Click slice or legend to filter. Active severity highlighted, others dimmed to 35% opacity. Tooltip has elevated z-index to appear above center label. Colors: Critical (red), High (orange), Medium (amber), Low (green).\n\nRelated: [Category Chart](./CategoryChart), [Incidents Table](./IncidentsTable), [Report Filters](./ReportFilters)",
       },
     },
   },

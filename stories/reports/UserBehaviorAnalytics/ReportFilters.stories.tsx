@@ -11,7 +11,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "## Report Filters Component\n\nDepartment, role, date range selects + search input. Filters combine with AND logic. Clear Filters resets all. Chart department selection overrides dropdown when active.\n\nRelated: [DepartmentChart](./DepartmentChart), [HighRiskTable](./HighRiskTable), [User Behavior Report](./UserBehaviorPage)",
+          "## Report Filters Component\n\nDepartment, role, date range selects + optional user search popover. Rendered **below** the \"High-Risk Users Requiring Attention\" title, above the table. Filters combine with AND logic. Clear Filters resets all. Chart department selection overrides dropdown when active.\n\nRelated: [DepartmentChart](./DepartmentChart), [HighRiskTable](./HighRiskTable), [UserSearchPopover](./UserSearchPopover), [User Behavior Report](./UserBehaviorPage)",
       },
     },
   },

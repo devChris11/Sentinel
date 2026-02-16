@@ -46,7 +46,7 @@ export function SeverityChart({ data, activeSeverity, onSeverityClick }: Severit
         <p className="text-xs text-content-text-muted mt-0.5">Incident priority levels</p>
       </div>
       <div className="flex items-center gap-6">
-        <div className="relative h-[280px] w-[280px] shrink-0">
+        <div className="relative h-[320px] w-[320px] shrink-0">
           <div className="absolute inset-0 z-10">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
