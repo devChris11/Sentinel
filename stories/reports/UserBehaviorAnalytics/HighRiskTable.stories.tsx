@@ -77,6 +77,7 @@ export const InSectionLayout: Story = {
               filters={defaultFilters}
               onFilterChange={() => {}}
               hasActiveFilters={false}
+              departments={["All Departments", ...userBehaviorData.departmentBreakdown.map((d) => d.department)]}
               userSearch={
                 <UserSearchPopover
                   users={userBehaviorData.highRiskUsers}

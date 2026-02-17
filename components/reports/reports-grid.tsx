@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { ReportCard } from "@/components/reports/report-card"
 import { ComingSoonModal } from "@/components/reports/coming-soon-modal"
 import {
@@ -13,19 +12,14 @@ import {
 const categories = ["executive", "operational", "secops"] as const
 
 export function ReportsGrid() {
-  const router = useRouter()
   const [selectedReport, setSelectedReport] = useState<ReportCardType | null>(
     null
   )
   const [modalOpen, setModalOpen] = useState(false)
 
   const handleCardClick = (report: ReportCardType) => {
-    if (report.status === "available" && report.route) {
-      router.push(report.route)
-    } else {
-      setSelectedReport(report)
-      setModalOpen(true)
-    }
+    setSelectedReport(report)
+    setModalOpen(true)
   }
 
   return (

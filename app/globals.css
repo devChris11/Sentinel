@@ -168,6 +168,11 @@
   }
 }
 
+/* ===== RECHARTS: Remove focus outline on mouse click (preserve for keyboard) ===== */
+[class*="recharts"] *:focus:not(:focus-visible) {
+  outline: none !important;
+}
+
 /* ===== PRINT STYLES ===== */
 @media print {
   /* Hide navigation elements */

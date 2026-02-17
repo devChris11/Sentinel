@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "## Recent Incidents Table\n\nPaginated table (20 per page) showing incident details. Columns: Severity, Title, Category, User, Time, Status. Sort by recent or severity. Click row to open detail sidebar. Footer shows \"Showing X-Y of Z incidents\" with page navigation (always shows page 1 and last page, ellipsis for gaps). Matches High-Risk Users table styling. Responsive: hides columns on smaller screens.\n\nRelated: [Incident Detail](./IncidentDetail), [Category Chart](./CategoryChart), [Severity Chart](./SeverityChart)",
+          "## Recent Incidents Table\n\nPaginated table (20 per page) showing incident details. Used within Incident & Threat Intelligence report; title \"Recent Incidents\", Export List button, filters, and Sort by control are rendered by the parent. Layout: filters left-aligned, Sort by right-aligned in the same row. Accepts sortBy prop (recent | severity). Columns: Severity, Title, Category, User, Time, Status. Click row to open detail sidebar. Footer shows \"Showing X-Y of Z incidents\" with page navigation. Matches High-Risk Users table styling. Responsive: hides columns on smaller screens.\n\nRelated: [Incident Detail](./IncidentDetail), [Category Chart](./CategoryChart), [Severity Chart](./SeverityChart)",
       },
     },
   },

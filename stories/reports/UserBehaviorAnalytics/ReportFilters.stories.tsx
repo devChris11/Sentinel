@@ -11,7 +11,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "## Report Filters Component\n\nDepartment, role, date range selects + optional user search popover. Rendered **below** the \"High-Risk Users Requiring Attention\" title, above the table. Filters combine with AND logic. Clear Filters resets all. Chart department selection overrides dropdown when active.\n\nRelated: [DepartmentChart](./DepartmentChart), [HighRiskTable](./HighRiskTable), [UserSearchPopover](./UserSearchPopover), [User Behavior Report](./UserBehaviorPage)",
+          "## Report Filters Component\n\nDepartment, role, date range selects + optional user search popover. Department options are passed via `departments` prop (derived from departmentBreakdown)—adapts when new departments are added to data. Rendered **below** the \"High-Risk Users Requiring Attention\" title, above the table. Filters combine with AND logic. Clear Filters resets all. Chart department selection overrides dropdown when active.\n\nRelated: [DepartmentChart](./DepartmentChart), [HighRiskTable](./HighRiskTable), [UserSearchPopover](./UserSearchPopover), [User Behavior Report](./UserBehaviorPage)",
       },
     },
   },
@@ -28,11 +28,14 @@ const defaultFilters: FilterState = {
   search: "",
 }
 
+const departments = ["All Departments", ...userBehaviorData.departmentBreakdown.map((d) => d.department)]
+
 export const Default: Story = {
   args: {
     filters: defaultFilters,
     onFilterChange: () => {},
     hasActiveFilters: false,
+    departments,
   },
 }
 
@@ -41,6 +44,7 @@ export const DepartmentSelected: Story = {
     filters: { ...defaultFilters, department: "Sales" },
     onFilterChange: () => {},
     hasActiveFilters: true,
+    departments,
   },
 }
 
@@ -49,6 +53,7 @@ export const SearchActive: Story = {
     filters: { ...defaultFilters, search: "sarah" },
     onFilterChange: () => {},
     hasActiveFilters: true,
+    departments,
   },
 }
 
@@ -57,6 +62,7 @@ export const WithUserSearchPopover: Story = {
     filters: defaultFilters,
     onFilterChange: () => {},
     hasActiveFilters: false,
+    departments,
     userSearch: (
       <UserSearchPopover
         users={userBehaviorData.highRiskUsers}

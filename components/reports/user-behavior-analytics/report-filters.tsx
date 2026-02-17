@@ -23,11 +23,11 @@ interface ReportFiltersProps {
   filters: FilterState
   onFilterChange: (filters: FilterState) => void
   hasActiveFilters: boolean
+  /** Department options (e.g. from departmentBreakdown). Include "All Departments" as first item. */
+  departments: string[]
   /** Optional: Replace search input with custom component (e.g. UserSearchPopover). When provided, Clear Filters also clears user selection via onFilterChange. */
   userSearch?: ReactNode
 }
-
-const departments = ["All Departments", "Engineering", "Sales", "Marketing", "Finance", "HR"]
 const roles = ["All Roles", "Admin", "Manager", "Individual Contributor"]
 const dateRanges = [
   { value: "30", label: "Last 30 Days" },
@@ -36,7 +36,7 @@ const dateRanges = [
   { value: "365", label: "Last Year" },
 ]
 
-export function ReportFilters({ filters, onFilterChange, hasActiveFilters, userSearch }: ReportFiltersProps) {
+export function ReportFilters({ filters, onFilterChange, hasActiveFilters, departments, userSearch }: ReportFiltersProps) {
   function update(key: keyof FilterState, value: string) {
     onFilterChange({ ...filters, [key]: value })
   }

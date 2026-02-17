@@ -12,13 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -32,6 +25,7 @@ import type { Incident } from "@/lib/incident-threat-data"
 
 interface IncidentsTableProps {
   incidents: Incident[]
+  sortBy?: "recent" | "severity"
   onRowClick: (incident: Incident) => void
 }
 
@@ -65,8 +59,7 @@ function formatStatusLabel(status: string): string {
     .join(" ")
 }
 
-export function IncidentsTable({ incidents, onRowClick }: IncidentsTableProps) {
-  const [sortBy, setSortBy] = useState("recent")
+export function IncidentsTable({ incidents, sortBy = "recent", onRowClick }: IncidentsTableProps) {
   const [currentPage, setCurrentPage] = useState(1)
 
   const sorted = [...incidents].sort((a, b) => {
@@ -86,27 +79,6 @@ export function IncidentsTable({ incidents, onRowClick }: IncidentsTableProps) {
 
   return (
     <Card className="bg-content-surface border-content-border p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h3 className="text-lg font-semibold text-content-text-strong">Recent Incidents</h3>
-          <span className="rounded-md bg-content-bg-alt px-2.5 py-1 text-sm font-medium text-content-text-muted">
-            {incidents.length} incidents
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-content-text-muted">Sort by:</span>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="h-8 w-[140px] border-content-border bg-content-surface text-content-text text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="recent">Most Recent</SelectItem>
-              <SelectItem value="severity">Severity</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
