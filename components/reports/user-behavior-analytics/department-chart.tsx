@@ -45,7 +45,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<
 }
 
 export function DepartmentChart({ data, companyAvg, selectedDepartment, onDepartmentClick }: DepartmentChartProps) {
-  const sortedData = [...data].sort((a, b) => b.reportingRate - a.reportingRate)
+  const sortedData = [...data].sort((a, b) => a.reportingRate - b.reportingRate)
 
   return (
     <Card className="border-content-border bg-content-surface p-6">
@@ -53,7 +53,7 @@ export function DepartmentChart({ data, companyAvg, selectedDepartment, onDepart
         <h3 className="text-lg font-semibold text-content-text-strong">Department Performance</h3>
         <p className="text-xs text-content-text-muted">Phishing simulation reporting rates</p>
       </div>
-      <ResponsiveContainer width="100%" height={280} aria-label="Department reporting rates bar chart">
+      <ResponsiveContainer width="100%" height={Math.min(480, 80 + data.length * 36)} aria-label="Department reporting rates bar chart">
         <BarChart
           data={sortedData}
           layout="vertical"
@@ -79,7 +79,7 @@ export function DepartmentChart({ data, companyAvg, selectedDepartment, onDepart
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: "var(--color-accent)", opacity: 0.5 }} />
+          <Tooltip content={<CustomTooltip />} cursor={false} />
           <ReferenceLine
             x={companyAvg}
             stroke="var(--color-content-text-muted)"
@@ -96,6 +96,7 @@ export function DepartmentChart({ data, companyAvg, selectedDepartment, onDepart
             dataKey="reportingRate"
             radius={[0, 4, 4, 0]}
             maxBarSize={36}
+            activeBar={false}
             onClick={(data: unknown) => {
               const payload = (data as { payload?: DepartmentData })?.payload
               if (payload?.department) onDepartmentClick(payload.department)
@@ -104,11 +105,7 @@ export function DepartmentChart({ data, companyAvg, selectedDepartment, onDepart
             aria-label="Department reporting rates, click to filter"
           >
             {sortedData.map((entry) => (
-              <Cell
-                key={entry.department}
-                fill={getBarColor(entry.reportingRate)}
-                opacity={selectedDepartment && selectedDepartment !== entry.department ? 0.4 : 1}
-              />
+              <Cell key={entry.department} fill={getBarColor(entry.reportingRate)} />
             ))}
           </Bar>
         </BarChart>

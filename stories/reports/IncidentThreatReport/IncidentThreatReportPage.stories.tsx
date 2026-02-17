@@ -9,7 +9,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "## Incident & Threat Intelligence Report\n\nComplete operational report for SOC analysts and security teams. Weekly security review + spike investigation. Metrics: Total Incidents, MTTD, MTTR, Resolution Rate. Charts: Category breakdown (bar), Severity distribution (donut), Volume trend (area). Table: Recent incidents (paginated 20/page). Interactions: Click chart to filter table, click row to see details, change status in sidebar. CSV export respects filters.\n\nRelated: [Metric Cards](./MetricCards), [Category Chart](./CategoryChart), [Severity Chart](./SeverityChart), [Trend Chart](./TrendChart), [Incidents Table](./IncidentsTable), [Incident Detail](./IncidentDetail)",
+          "## Incident & Threat Intelligence Report\n\nComplete operational report for SOC analysts and security teams. **Layout:** Page header with Export CSV + Export PDF; metrics cards; category and severity charts; trend chart; Recent Incidents section (title + count | Export List button, filters left / Sort by right below title, table). **Chart interaction:** Click Category or Severity chart segment to filter—updates filter dropdown (no chips), auto-scrolls to table. Tap same segment again to clear. **Export options:** Export CSV downloads entire page; Export PDF prints full page; Export List downloads filtered table only. Click row to see details; change status in sidebar.\n\nRelated: [Metric Cards](./MetricCards), [Category Chart](./CategoryChart), [Severity Chart](./SeverityChart), [Trend Chart](./TrendChart), [Incidents Table](./IncidentsTable), [Incident Detail](./IncidentDetail)",
       },
     },
   },

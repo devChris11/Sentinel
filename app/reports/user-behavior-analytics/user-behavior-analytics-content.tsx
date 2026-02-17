@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useMemo, useCallback, useEffect, useRef } from "react"
+import { useState, useMemo, useCallback, useEffect, useLayoutEffect, useRef } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Download, ChevronRight, Target, X } from "lucide-react"
+import { Download, ChevronRight, Target } from "lucide-react"
 import { MetricsCards } from "@/components/reports/user-behavior-analytics/metrics-cards"
 import { DepartmentChart } from "@/components/reports/user-behavior-analytics/department-chart"
 import { TrendChart } from "@/components/reports/user-behavior-analytics/trend-chart"
@@ -32,19 +32,18 @@ function escapeCSVValue(value: string): string {
 export function UserBehaviorAnalyticsContent() {
   const searchParams = useSearchParams()
   const [filters, setFilters] = useState<FilterState>(defaultFilters)
-  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
-  const scrollRestoreRef = useRef<number | null>(null)
+  const highRiskSectionRef = useRef<HTMLElement>(null)
+  const scrollPreserveRef = useRef<number | null>(null)
 
   const hasActiveFilters =
     filters.department !== "All Departments" ||
     filters.role !== "All Roles" ||
     filters.dateRange !== "90" ||
     filters.search !== "" ||
-    selectedDepartment !== null ||
     selectedUserIds.length > 0
 
-  const activeDepartmentFilter = selectedDepartment || (filters.department !== "All Departments" ? filters.department : null)
+  const activeDepartmentFilter = filters.department !== "All Departments" ? filters.department : null
 
   const filteredUsers = useMemo(() => {
     const result = userBehaviorData.highRiskUsers
@@ -70,26 +69,23 @@ export function UserBehaviorAnalyticsContent() {
   }, [selectedUserIds, activeDepartmentFilter, filters.role, filters.search])
 
   const handleDepartmentClick = useCallback((department: string) => {
-    scrollRestoreRef.current = window.scrollY
-    setSelectedDepartment((prev) => (prev === department ? null : department))
+    setFilters((prev) => ({
+      ...prev,
+      department: prev.department === department ? "All Departments" : department,
+    }))
     setSelectedUserIds([])
+    highRiskSectionRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [])
 
   const handleFilterChange = useCallback((newFilters: FilterState) => {
-    scrollRestoreRef.current = window.scrollY
+    scrollPreserveRef.current = window.scrollY
     setFilters(newFilters)
-    setSelectedDepartment(null)
     setSelectedUserIds([])
   }, [])
 
   const handleSelectionChange = useCallback((userIds: string[]) => {
-    scrollRestoreRef.current = window.scrollY
+    scrollPreserveRef.current = window.scrollY
     setSelectedUserIds(userIds)
-  }, [])
-
-  const clearChartFilter = useCallback(() => {
-    scrollRestoreRef.current = window.scrollY
-    setSelectedDepartment(null)
   }, [])
 
   const handleExportPDF = useCallback(() => {
@@ -97,6 +93,57 @@ export function UserBehaviorAnalyticsContent() {
   }, [])
 
   const handleExportCSV = useCallback(() => {
+    const date = new Date().toISOString().split("T")[0]
+    const lines: string[] = []
+
+    lines.push("Sentinel User Behavior Analytics Report")
+    lines.push(`Generated,${date}`)
+    lines.push("")
+
+    const s = userBehaviorData.summary
+    lines.push("Summary Metrics")
+    lines.push(`Average Reporting Rate,${s.avgReportingRate}%`)
+    lines.push(`Reporting Rate Change,${s.avgReportingRateChange}%`)
+    lines.push(`Average Time to Report,${s.avgTimeToReport} hrs`)
+    lines.push(`Time to Report Change,${s.avgTimeToReportChange}%`)
+    lines.push(`Training Completion,${s.trainingCompletion}%`)
+    lines.push(`Training Completion Change,${s.trainingCompletionChange}%`)
+    lines.push(`Real Threat Reports,${s.realThreatReports}`)
+    lines.push(`Real Threat Reports Change,${s.realThreatReportsChange}%`)
+    lines.push("")
+
+    lines.push("Department Breakdown")
+    lines.push("Department,Reporting Rate,User Count,Users Needing Training,Trend")
+    userBehaviorData.departmentBreakdown.forEach((d) =>
+      lines.push(`${escapeCSVValue(d.department)},${d.reportingRate},${d.userCount},${d.usersNeedingTraining},${d.trend}`)
+    )
+    lines.push("")
+
+    lines.push("Reporting Rate Trend")
+    lines.push("Week,Reporting Rate,Company Avg,Industry Benchmark")
+    userBehaviorData.trendData.forEach((t) =>
+      lines.push(`${escapeCSVValue(t.week)},${t.reportingRate},${t.companyAvg},${t.industryBenchmark}`)
+    )
+    lines.push("")
+
+    lines.push("High-Risk Users")
+    lines.push("Name,Email,Department,Role,Reporting Rate,Time to Report,Risk Level")
+    userBehaviorData.highRiskUsers.forEach((u) =>
+      lines.push(
+        [escapeCSVValue(u.name), escapeCSVValue(u.email), escapeCSVValue(u.department), escapeCSVValue(u.role), `${u.reportingRate}%`, `${u.timeToReport} hrs`, u.riskLevel].join(",")
+      )
+    )
+
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `sentinel-user-behavior-analytics-${date}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }, [])
+
+  const handleExportList = useCallback(() => {
     const headers = ["Name", "Email", "Department", "Role", "Reporting Rate", "Time to Report", "Risk Level"]
     const rows = filteredUsers.map((u) => [
       escapeCSVValue(u.name),
@@ -141,20 +188,19 @@ export function UserBehaviorAnalyticsContent() {
     }
   }, [searchParams, filteredUsers])
 
-  // Restore scroll position after table re-renders from filter changes (prevents scroll jump)
-  useEffect(() => {
-    if (scrollRestoreRef.current !== null) {
-      const pos = scrollRestoreRef.current
-      scrollRestoreRef.current = null
-      requestAnimationFrame(() => {
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight
-        window.scrollTo(0, Math.min(pos, maxScroll))
-      })
-    }
-  }, [filteredUsers, activeDepartmentFilter, filters.role, filters.search, selectedUserIds])
+  useLayoutEffect(() => {
+    const y = scrollPreserveRef.current
+    if (y == null) return
+    scrollPreserveRef.current = null
+    const id = requestAnimationFrame(() => {
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      window.scrollTo({ top: Math.min(y, max), left: 0, behavior: "auto" })
+    })
+    return () => cancelAnimationFrame(id)
+  }, [filteredUsers, filters.department, filters.role, filters.search, selectedUserIds])
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={{ overflowAnchor: "none" }}>
       <div className="mx-auto max-w-[1600px] px-6 py-8 lg:px-10 space-y-6">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-content-text-muted">
@@ -180,27 +226,27 @@ export function UserBehaviorAnalyticsContent() {
               </p>
             </div>
           </div>
-          <Button variant="outline" onClick={handleExportPDF} className="gap-1.5 self-start border-content-border print:hidden">
-            <Download className="h-4 w-4" aria-hidden />
-            Export PDF
-          </Button>
-        </div>
-
-        {/* Active Chart Filter Chip */}
-        {selectedDepartment && (
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
-              Department: {selectedDepartment}
-              <button
-                onClick={clearChartFilter}
-                className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-primary/20"
-                aria-label={`Remove ${selectedDepartment} filter`}
-              >
-                <X className="h-3 w-3" aria-hidden />
-              </button>
-            </span>
+          <div className="flex items-center gap-2 self-start print:hidden">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 border-content-border text-content-text hover:bg-content-bg-alt"
+              onClick={handleExportCSV}
+            >
+              <Download className="h-4 w-4" aria-hidden />
+              <span className="hidden sm:inline">Export</span> CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 border-content-border text-content-text hover:bg-content-bg-alt"
+              onClick={handleExportPDF}
+            >
+              <Download className="h-4 w-4" aria-hidden />
+              <span className="hidden sm:inline">Export</span> PDF
+            </Button>
           </div>
-        )}
+        </div>
 
         {/* Metrics Dashboard */}
         <MetricsCards data={userBehaviorData.summary} />
@@ -211,7 +257,7 @@ export function UserBehaviorAnalyticsContent() {
             <DepartmentChart
               data={userBehaviorData.departmentBreakdown}
               companyAvg={userBehaviorData.summary.avgReportingRate}
-              selectedDepartment={selectedDepartment}
+              selectedDepartment={activeDepartmentFilter}
               onDepartmentClick={handleDepartmentClick}
             />
           </div>
@@ -227,7 +273,7 @@ export function UserBehaviorAnalyticsContent() {
         />
 
         {/* High-Risk Users Section - title + pill | Export, then filters, then table */}
-        <section className="pt-10">
+        <section ref={highRiskSectionRef} className="pt-10">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <h2 className="text-xl font-semibold text-content-text-strong">
@@ -237,7 +283,7 @@ export function UserBehaviorAnalyticsContent() {
                 {filteredUsers.length} users
               </span>
             </div>
-            <Button variant="outline" size="sm" onClick={handleExportCSV} className="gap-1.5 print:hidden">
+            <Button variant="outline" size="sm" onClick={handleExportList} className="gap-1.5 print:hidden">
               <Download className="h-4 w-4" aria-hidden />
               Export List
             </Button>
@@ -249,6 +295,7 @@ export function UserBehaviorAnalyticsContent() {
               filters={filters}
               onFilterChange={handleFilterChange}
               hasActiveFilters={hasActiveFilters}
+              departments={["All Departments", ...userBehaviorData.departmentBreakdown.map((d) => d.department)]}
               userSearch={
                 <UserSearchPopover
                   users={userBehaviorData.highRiskUsers}

@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "## Metrics Dashboard\n\nFour key operational metrics for SOC teams: Total Incidents (with % change), Mean Time to Detect (MTTD), Mean Time to Respond (MTTR), and Resolution Rate. Each card shows trend vs last period with color-coded indicators. Lower is better for MTTD/MTTR (green down arrow = improvement). Card padding p-6, vertical spacing gap-2 between elements. Matches dashboard and High-Risk table card styling.\n\nRelated: [Trend Chart](./TrendChart), [Incidents Table](./IncidentsTable), [Incident Report](./IncidentThreatReportPage)",
+          "## Metrics Dashboard\n\nFour key operational metrics for SOC teams: Total Incidents (with % change), Mean Time to Detect (MTTD), Mean Time to Respond (MTTR), and Resolution Rate. Design matches dashboard and risk scoring: title in camel/title case, no icon. Each card shows trend vs last period with color-coded indicators. Lower is better for MTTD/MTTR (green down arrow = improvement). Card padding p-6, vertical spacing gap-2 between elements.\n\nRelated: [Trend Chart](./TrendChart), [Incidents Table](./IncidentsTable), [Incident Report](./IncidentThreatReportPage)",
       },
     },
   },

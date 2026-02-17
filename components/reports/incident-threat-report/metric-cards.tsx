@@ -1,6 +1,6 @@
 "use client"
 
-import { AlertTriangle, Target, Clock, Shield, TrendingUp, TrendingDown } from "lucide-react"
+import { TrendingUp, TrendingDown } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import type { Metrics } from "@/lib/incident-threat-data"
 
@@ -9,7 +9,6 @@ interface MetricCardsProps {
 }
 
 interface MetricCardProps {
-  icon: React.ReactNode
   label: string
   value: string
   change: number
@@ -18,17 +17,14 @@ interface MetricCardProps {
   isPositiveGood?: boolean
 }
 
-function MetricCard({ icon, label, value, change, changeLabel, context, isPositiveGood = false }: MetricCardProps) {
+function MetricCard({ label, value, change, changeLabel, context, isPositiveGood = false }: MetricCardProps) {
   const isImproved = isPositiveGood ? change > 0 : change < 0
   const TrendIcon = change > 0 ? TrendingUp : TrendingDown
 
   return (
     <Card className="border-content-border bg-content-surface p-6">
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          {icon}
-          <span className="text-xs font-medium uppercase tracking-wider text-content-text-muted">{label}</span>
-        </div>
+        <span className="text-sm font-medium text-content-text-muted">{label}</span>
         <div className="text-3xl font-bold text-content-text-strong">{value}</div>
         <div className="flex items-center gap-1.5">
           <div className={`flex items-center gap-1 text-xs font-medium ${isImproved ? "text-success" : "text-danger"}`}>
@@ -46,7 +42,6 @@ export function MetricCards({ metrics }: MetricCardsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <MetricCard
-        icon={<AlertTriangle className="h-5 w-5 text-danger" aria-hidden />}
         label="Total Incidents"
         value={String(metrics.totalIncidents)}
         change={metrics.percentChange}
@@ -55,7 +50,6 @@ export function MetricCards({ metrics }: MetricCardsProps) {
         isPositiveGood={false}
       />
       <MetricCard
-        icon={<Target className="h-5 w-5 text-info" aria-hidden />}
         label="Mean Time to Detect"
         value={`${metrics.meanTimeToDetect} hrs`}
         change={metrics.mttdChange}
@@ -64,7 +58,6 @@ export function MetricCards({ metrics }: MetricCardsProps) {
         isPositiveGood={false}
       />
       <MetricCard
-        icon={<Clock className="h-5 w-5 text-warning" aria-hidden />}
         label="Mean Time to Respond"
         value={`${metrics.meanTimeToRespond} hrs`}
         change={metrics.mttrChange}
@@ -73,7 +66,6 @@ export function MetricCards({ metrics }: MetricCardsProps) {
         isPositiveGood={false}
       />
       <MetricCard
-        icon={<Shield className="h-5 w-5 text-success" aria-hidden />}
         label="Resolution Rate"
         value={`${metrics.resolutionRate}%`}
         change={metrics.resolutionChange}

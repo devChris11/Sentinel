@@ -1,7 +1,7 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Users, Clock, Shield, AlertCircle, TrendingUp, TrendingDown } from "lucide-react"
+import { TrendingUp, TrendingDown } from "lucide-react"
 import type { SummaryMetrics } from "@/lib/user-behavior-data"
 
 interface MetricsCardsProps {
@@ -12,8 +12,6 @@ const metrics = [
   {
     key: "avgReportingRate" as const,
     label: "Avg Reporting Rate",
-    icon: Users,
-    iconColor: "text-primary",
     format: (v: number) => `${v}%`,
     changeKey: "avgReportingRateChange" as const,
     benchmark: "Industry avg: 72%",
@@ -21,8 +19,6 @@ const metrics = [
   {
     key: "avgTimeToReport" as const,
     label: "Avg Time to Report",
-    icon: Clock,
-    iconColor: "text-warning",
     format: (v: number) => `${v} hrs`,
     changeKey: "avgTimeToReportChange" as const,
     benchmark: "Target: <2 hours",
@@ -30,8 +26,6 @@ const metrics = [
   {
     key: "trainingCompletion" as const,
     label: "Training Completion",
-    icon: Shield,
-    iconColor: "text-success",
     format: (v: number) => `${v}%`,
     changeKey: "trainingCompletionChange" as const,
     benchmark: "Company goal: 90%",
@@ -39,8 +33,6 @@ const metrics = [
   {
     key: "realThreatReports" as const,
     label: "Real Threats Reported",
-    icon: AlertCircle,
-    iconColor: "text-info",
     format: (v: number) => `${v}`,
     changeKey: "realThreatReportsChange" as const,
     benchmarkKey: "realThreatReportsLastMonth" as const,
@@ -51,7 +43,6 @@ export function MetricsCards({ data }: MetricsCardsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {metrics.map((metric) => {
-        const Icon = metric.icon
         const value = data[metric.key]
         const change = data[metric.changeKey]
         const isPositive = metric.key === "avgTimeToReport" ? change < 0 : change > 0
@@ -59,12 +50,9 @@ export function MetricsCards({ data }: MetricsCardsProps) {
         return (
           <Card key={metric.key} className="border-content-border bg-content-surface p-6">
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <Icon className={`h-5 w-5 ${metric.iconColor}`} aria-hidden />
-                <span className="text-xs font-medium uppercase tracking-wider text-content-text-muted">
-                  {metric.label}
-                </span>
-              </div>
+              <span className="text-sm font-medium text-content-text-muted">
+                {metric.label}
+              </span>
               <span className="text-3xl font-bold text-content-text-strong">
                 {metric.format(value)}
               </span>

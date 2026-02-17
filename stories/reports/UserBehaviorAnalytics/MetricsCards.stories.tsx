@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "## Metrics Cards Component\n\nDisplays four key metrics for User Behavior Analytics: Avg Reporting Rate, Avg Time to Report, Training Completion, and Real Threats Reported. Each card shows the current value, trend vs last period (green up = positive for most metrics; for Time to Report, green down = positive as lower is better), and benchmark comparison. Card padding p-6, vertical spacing gap-2. Matches Incident & Threat metric cards and dashboard styling.\n\nRelated: [DepartmentChart](./DepartmentChart), [ReportFilters](./ReportFilters), [User Behavior Report](./UserBehaviorPage)",
+          "## Metrics Cards Component\n\nDisplays four key metrics for User Behavior Analytics: Avg Reporting Rate, Avg Time to Report, Training Completion, and Real Threats Reported. Design matches dashboard and risk scoring: title in camel/title case, no icon. Each card shows the current value, trend vs last period (green up = positive for most metrics; for Time to Report, green down = positive as lower is better), and benchmark comparison. Card padding p-6, vertical spacing gap-2.\n\nRelated: [DepartmentChart](./DepartmentChart), [ReportFilters](./ReportFilters), [User Behavior Report](./UserBehaviorPage)",
       },
     },
   },

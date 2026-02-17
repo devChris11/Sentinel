@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "## Department Chart Component\n\nHorizontal bar chart showing phishing simulation reporting rates by department. Color coding: green ≥85%, amber 70-84%, red <70%. Click a bar to filter the high-risk users table. Company average reference line shown as dashed. Non-selected departments dim (opacity 0.4) when one is selected.\n\nRelated: [MetricsCards](./MetricsCards), [HighRiskTable](./HighRiskTable), [User Behavior Report](./UserBehaviorPage)",
+          "## Department Chart Component\n\nHorizontal bar chart showing phishing simulation reporting rates by department. **Sort order:** Worst (lowest rate) at top, best at bottom—Sales first, Finance last. Color coding: green ≥85%, amber 70-84%, red <70%. Height scales with department count. Click a bar to filter the high-risk users table—in the full report this also updates the department filter dropdown and auto-scrolls to the table. Company average reference line shown as dashed. Departments are derived from data; chart adapts when new departments are added.\n\nRelated: [MetricsCards](./MetricsCards), [ReportFilters](./ReportFilters), [HighRiskTable](./HighRiskTable), [User Behavior Report](./UserBehaviorPage)",
       },
     },
   },
