@@ -6,6 +6,9 @@ const meta = {
   component: IncidentThreatReportContent,
   parameters: {
     layout: "fullscreen",
+    nextjs: {
+      appDirectory: true,
+    },
     docs: {
       description: {
         component:
