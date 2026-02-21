@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { AlertsTable } from '@/components/dashboard/alerts-table'
 import type { SecurityAlert } from '@/lib/dashboard-data'
 
@@ -7,6 +7,9 @@ const meta = {
   component: AlertsTable,
   parameters: {
     layout: 'padded',
+    nextjs: {
+      appDirectory: true,
+    },
     docs: {
       description: {
         component: 
