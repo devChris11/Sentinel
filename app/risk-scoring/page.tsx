@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { Suspense, useState, useMemo, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { RiskHeader } from "@/components/risk-scoring/risk-header"
 import { RiskDistribution } from "@/components/risk-scoring/risk-distribution"
@@ -10,7 +10,7 @@ import { users, type RiskUser } from "@/lib/risk-data"
 
 const ITEMS_PER_PAGE = 20
 
-export default function RiskScoringPage() {
+function RiskScoringContent() {
   const searchParams = useSearchParams()
   
   const [searchQuery, setSearchQuery] = useState("")
@@ -177,6 +177,28 @@ export default function RiskScoringPage() {
         onClose={handleClosePanel}
       />
     </main>
+  )
+}
+
+function RiskScoringFallback() {
+  return (
+    <main className="min-h-screen bg-content-bg">
+      <div className="mx-auto max-w-[1600px] px-6 py-8 lg:px-10">
+        <div className="animate-pulse space-y-6">
+          <div className="h-16 rounded-lg bg-content-bg-alt" />
+          <div className="h-64 rounded-lg bg-content-bg-alt" />
+          <div className="h-96 rounded-lg bg-content-bg-alt" />
+        </div>
+      </div>
+    </main>
+  )
+}
+
+export default function RiskScoringPage() {
+  return (
+    <Suspense fallback={<RiskScoringFallback />}>
+      <RiskScoringContent />
+    </Suspense>
   )
 }
 

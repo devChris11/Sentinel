@@ -201,10 +201,13 @@ export function Sidebar({ className, defaultCollapsed = false }: SidebarProps) {
 
         {/* User Profile Section */}
         <div className="border-t border-slate-700/50 p-4">
-          <div
+          <Link
+            href="/user-profile"
+            title="User Profile"
             className={cn(
               "flex items-center gap-3 rounded-md p-2",
               "hover:bg-slate-700/50 transition-colors cursor-pointer",
+              pathname === "/user-profile" && "bg-slate-700/50",
               isCollapsed && "justify-center"
             )}
           >
@@ -223,7 +226,7 @@ export function Sidebar({ className, defaultCollapsed = false }: SidebarProps) {
                 </p>
               </div>
             )}
-          </div>
+          </Link>
         </div>
       </aside>
 
